@@ -16,4 +16,6 @@ dir = dir.sort(function(elem, elem2) {
   return stats2.birthtimeMs - stats.birthtimeMs;
 })
 
+dir = dir.map(elem => elem.replace(' ', '%20'));
+
 fs.writeFileSync('./public/cats/fileList.json', JSON.stringify(dir));

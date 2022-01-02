@@ -6,8 +6,9 @@
   <div class="container feed">
     <!-- <img alt="Vue logo" src="../assets/logo.png"> -->
     <div @click="onImageClick(fileName)" v-for="fileName in loadedCats" :key="fileName" class="cat-image-wrapper">
-      <div class="cat-image-container">
-        <img class="cat-image" :src="'cats/' + fileName" alt="">
+      <div class="cat-image-container" :style="'background-image: url(cats/'+fileName+');  background-size: cover'">
+        <img class="cat-image" :src="'cats/' + fileName" alt="" style="visibility: hidden;">
+        <!-- <div class="cat-image" :style="'background-image: url(cats/'+fileName+')'"></div> -->
       </div>
       
     </div>
@@ -119,7 +120,7 @@ export default {
   .feed {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
-    gap: 10px;
+    gap: 20px;
   }
 
   .container {
@@ -141,6 +142,7 @@ export default {
   .cat-image-container {
     padding: 10px;
     transition: 0.2s;
+    border-radius: 20px;
   }
 
   .cat-image-container:hover {
@@ -149,11 +151,14 @@ export default {
     /* transition: background 0.2s; */
     transition: transform 0.2s;
     cursor: pointer;
+    transition: transform 0.2s;
+    transform:scale(0.95);
   }
 
   .cat-image-container:hover .cat-image {
     transition: transform 0.2s;
     transform:scale(0.95);
+    height: 100%;
   }
 
   .cat-image {
@@ -161,6 +166,7 @@ export default {
     border-radius: 10px;
     display: block;
     transition: transform 0.2s;
+    background-size: cover;
 
   }
 </style>

@@ -3,7 +3,7 @@
     <h1>Набор котиков от <span style="color: orange">love1ycat</span>: нажми, чтобы скопироватц</h1>
     <p>Библиотека регулярно пополняется</p>
   </div>
-  <div class="container feed">
+  <div class="container feed" ref="feed">
     <!-- <img alt="Vue logo" src="../assets/logo.png"> -->
     <div @click="onImageClick(fileName)" v-for="fileName in loadedCats" :key="fileName" class="cat-image-wrapper">
         <img class="cat-image" :src="'cats/small/' + fileName" alt="">
@@ -14,7 +14,12 @@
 
 <script>
 // @ is an alias to /src
-
+const Masonry = require('masonry-layout');
+function onCatsLoaded() {
+  new Masonry(this.$refs.feed, {
+    itemSelector: '.cat-image-wrapper'
+  });
+}
 
 export default {
   name: 'Home',
@@ -30,7 +35,7 @@ export default {
     }
   },
 
-  mounted() {
+  created() {
     fetch('cats/fileList.json').then(response => {
       response.json().then(body => {
         this.catsFileNames = body;
@@ -38,9 +43,17 @@ export default {
 
         this.appendCatsChunk();
 
+        // setTimeout(() => {
+          
+        // }, 2000)
+
         document.addEventListener('scroll', () => {
           // console.log(document.body.clientHeight)
           // console.log(window.scrollY + + window.innerHeight)
+
+          new Masonry(this.$refs.feed, {
+            itemSelector: '.cat-image-wrapper'
+          })
 
           let docHeight = document.body.clientHeight
           let scroll = window.scrollY + + window.innerHeight
@@ -51,7 +64,22 @@ export default {
         })
       })
     })
+  },
 
+  watch: {
+    loadedCats() {
+      this.$refs.feed.removeEventListener('load', onCatsLoaded);
+      this.$refs.feed.addEventListener('load', onCatsLoaded);
+    }
+  },
+
+  mounted() {
+    
+    this.$nextTick(() => {
+      new Masonry(this.$refs.feed, {
+        itemSelector: '.cat-image-wrapper'
+      })
+    })
     
   },
 
@@ -64,6 +92,10 @@ export default {
           }
         }
       }
+      
+      new Masonry(this.$refs.feed, {
+        itemSelector: '.cat-image-wrapper'
+      })
     },
 
     onImageClick(fileName) {
@@ -115,7 +147,7 @@ export default {
   }
 
   .feed {
-    display: grid;
+    /* display: grid; */
     flex-wrap: wrap;
     grid-template-columns: 1fr 1fr 1fr;
     gap: 10px;
@@ -139,33 +171,9 @@ export default {
   .cat-image-wrapper {
     animation-name: show;
     animation-duration: 1s;
-    /* height: 300px; */
-    /* height: 40vh; */
-    /* flex-grow: 10; */
-    /* align-self: center; */
+    width: 333px;
     translate: 1s;
-  }
-
-  /* .cat-image-container { */
-    /* padding: 10px; */
-    /* transition: 0.2s; */
-    /* border-radius: 20px; */
-  /* } */
-
-  .cat-image-container:hover {
-    /* background: #eee; */
-    border-radius: 20px;
-    /* transition: background 0.2s; */
-    transition: transform 0.2s;
-    cursor: pointer;
-    transition: transform 0.2s;
-    transform:scale(0.95);
-  }
-
-  .cat-image-container:hover .cat-image {
-    transition: transform 0.2s;
-    transform:scale(0.95);
-    height: 100%;
+    padding: 10px;
   }
 
   .cat-image {

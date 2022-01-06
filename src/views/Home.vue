@@ -1,6 +1,6 @@
 <template>
   <div class="container header-container">
-    <h1>Набор котиков от Lovely_Cat: нажми, чтобы скопироватц</h1>
+    <h1>Набор котиков от <span style="color: orange">love1ycat</span>: нажми, чтобы скопироватц</h1>
     <p>Библиотека регулярно пополняется</p>
   </div>
   <div class="container feed">
@@ -119,8 +119,10 @@ export default {
 
   .feed {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 20px;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 4px;
+    row-gap: 50px;
+    /* column-gap: 10px */
   }
 
   .container {

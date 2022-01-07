@@ -1,14 +1,21 @@
 <template>
   <div class="container header-container">
-    <h1>Набор котиков от <span style="color: orange">love1ycat</span>: нажми, чтобы скопироватц</h1>
-    <p>Библиотека регулярно пополняется</p>
+    <p>Альфа версия</p>
+    <h1>Набор котиков от <span style="color: orange">love1ycat</span>: <br> нажми на какого-то из них, чтобы скопироватц</h1>
+    <p>Библиотека регулярно пополняется</p>  
+    <p><button><img src="https://img.icons8.com/material-outlined/24/000000/download--v1.png"/> Скачать архивом</button></p>
   </div>
-  <div class="container feed" ref="feed">
+  <div class="container feed" @loadeddata="onFeedLoad" ref="feed">
     <!-- <img alt="Vue logo" src="../assets/logo.png"> -->
     <div @click="onImageClick(fileName)" v-for="fileName in loadedCats" :key="fileName" class="cat-image-wrapper">
         <img class="cat-image" :src="'cats/small/' + fileName" alt="">
         <!-- <div class="cat-image" :style="'background-image: url(cats/'+fileName+')'"></div> -->
     </div>
+
+    
+  </div>
+  <div class="footer container">
+    <p v-if="!catsFileNames.length">Коты закончились!</p>
   </div>
 </template>
 
@@ -100,6 +107,11 @@ export default {
 
     onImageClick(fileName) {
       navigator.clipboard.writeText(document.URL.replace('#/', '') + 'cats/' + fileName)
+    },
+
+    onFeedLoad() {
+      console.log('hello')
+      alert('hello')
     }
   }
 }
@@ -120,23 +132,12 @@ export default {
     }
   }
 
-  img {
-    padding: 0;
-    margin: 0;
-  }
+  
 
-  @font-face {
-    font-family: 'f2p';
-    src: url('/fonts/PressStart2P-Regular.ttf');
-  }
 
-  @font-face {
-    font-family: 'mine';
-    src: url('/fonts/minecraft.ttf');
-  }
 
   h1 {
-    font-family: f2p;
+    font-family: mine;
     font-size: 40px;
     line-height: 1.4em;
   }
@@ -197,5 +198,9 @@ export default {
     cursor: pointer;
     transition: transform 0.2s;
     transform:scale(0.95);
+  }
+
+  .footer {
+    padding: 50px 0;
   }
 </style>

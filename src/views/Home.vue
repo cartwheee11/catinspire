@@ -5,10 +5,16 @@
     <p>Библиотека регулярно пополняется</p>  
     <p><button><img src="https://img.icons8.com/material-outlined/24/000000/download--v1.png"/> Скачать архивом</button></p>
   </div>
-  <div class="container feed " ref="feed"></div>
+  <div class="container feed " ref="feed">
+    <div @click="onImageClick(fileName)" v-for="fileName in loadedImages" :key="fileName" class="cat-image-wrapper">
+      <img ref="catImage" @load="onImageLoad" class="cat-image" :src="'https://cats.cartwheel.top/cats/small/' + fileName" alt="">
+    </div>
+
+    
+  </div>
   <div class="footer container">
     <p v-if="!fileList.length">Коты закончились!</p>
-    <p v-else>Загрузка</p>
+    <img v-else class="spinner" src="https://img.icons8.com/material-rounded/24/000000/loading-sign.png"/>
   </div>
 </template>
 
@@ -39,8 +45,6 @@ export default {
     fetch('cats/fileList.json').then(async response => {
       this.fileList = await response.json();
     })
-
-    this.masonry = new Masonry(this.$refs.feed, { itemSelector: '.cat-image-wrapper', columnWidth: 333, fitWidth: true });
   },
 
   watch: {
@@ -49,24 +53,26 @@ export default {
         this.loadChunk()
       }
     },
+
+    currentChunk() {
+    }
   },
 
   methods: {
-    onImageClick(fileName) {
-      navigator.clipboard.writeText('https://cats.cartwheel.top/cats/' + fileName);
-    },
-
     onScrolledDownHandler() {
       let docHeight = document.body.clientHeight
-      let scroll = window.scrollY + + window.innerHeight
+      let scroll = window.scrollY + window.innerHeight
       if(scroll >= docHeight) {
         this.loadChunk();
+        document.removeEventListener('scroll', this.onScrolledDownHandler);
       }
     },
-    
+
+    onImageLoad() {
+      this.masonry = new Masonry(this.$refs.feed, { itemSelector: '.cat-image-wrapper', columnWidth: 333 });
+    },
+
     loadChunk() {
-      document.removeEventListener('scroll', this.onScrolledDownHandler)
-      
       for(let i = 0; i < this.imagesInChunk; i++) {
         if(this.fileList.length) {
           this.currentChunk.push(this.fileList.shift());
@@ -76,28 +82,31 @@ export default {
       }
 
       this.currentChunk.forEach(name => {
-          let imageWrapper = document.createElement('div');
-          imageWrapper.className = 'cat-image-wrapper';
-          let image = document.createElement('img');
-          image.onclick = this.onImageClick(name);
-          image.src = 'https://cats.cartwheel.top/cats/small/' + name;
-          image.className = 'cat-image'
-          imageWrapper.append(image)
-          image.onload = () => {
-            this.$refs.feed.append(imageWrapper)
-            this.masonry.appended(imageWrapper)
+        fetch('https://cats.cartwheel.top/small/' + name).then(res => res.body).then( async body => { 
+          let reader = body.getReader();
+          let done;
+          while (!done) {
+            ({
+              done
+            } = await reader.read());
+            if (done) {
+              this.loadedImages = this.loadedImages.concat([ name ]);
+              if((this.loadedImages.length % this.imagesInChunk) == 0) {
+                document.addEventListener('scroll', this.onScrolledDownHandler);
+              }
+            }
           }
-          document.addEventListener('scroll', this.onScrolledDownHandler)
         })
+      })
 
-        this.currentChunk = [];
+      this.currentChunk = [];
     }
   }
 }
 </script>
 
 
-<style>
+<style scoped>
 
   @keyframes show {
     from {
@@ -111,6 +120,16 @@ export default {
     }
   }
 
+  @keyframes spin {
+    from {
+      transform: rotate(0)
+    }
+
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
 
   h1 {
     font-family: mine;
@@ -121,6 +140,13 @@ export default {
   p {
     font-family: mine;
     font-size: 20px;
+  }
+
+  .spinner {
+    animation-name: spin;
+    animation-duration: 0.2s;
+    opacity: 0.5;
+    animation-iteration-count: infinite;
   }
 
   .feed {
@@ -140,7 +166,6 @@ export default {
     /* width: 600px;  */
     margin-top: 100px;
     margin-bottom: 100px;
-    padding: 0 30px;
   }
 
   .cat-image-wrapper {
@@ -161,7 +186,6 @@ export default {
     background-size: cover;
 
   }
-
 
   .cat-image:hover {
     transition: transform 0.2s;

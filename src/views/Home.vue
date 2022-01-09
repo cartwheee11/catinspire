@@ -5,120 +5,99 @@
     <p>Библиотека регулярно пополняется</p>  
     <p><button><img src="https://img.icons8.com/material-outlined/24/000000/download--v1.png"/> Скачать архивом</button></p>
   </div>
-  <div class="container feed" @loadeddata="onFeedLoad" ref="feed">
-    <!-- <img alt="Vue logo" src="../assets/logo.png"> -->
-    <div @click="onImageClick(fileName)" v-for="fileName in loadedCats" :key="fileName" class="cat-image-wrapper">
-        <img class="cat-image" :src="'cats/small/' + fileName" alt="">
-        <!-- <div class="cat-image" :style="'background-image: url(cats/'+fileName+')'"></div> -->
-    </div>
-
-    
-  </div>
+  <div class="container feed " ref="feed"></div>
   <div class="footer container">
-    <p v-if="!catsFileNames.length">Коты закончились!</p>
+    <p v-if="!fileList.length">Коты закончились!</p>
+    <p v-else>Загрузка</p>
   </div>
 </template>
 
 <script>
-// @ is an alias to /src
 const Masonry = require('masonry-layout');
-function onCatsLoaded() {
-  new Masonry(this.$refs.feed, {
-    itemSelector: '.cat-image-wrapper'
-  });
-}
 
 export default {
   name: 'Home',
   components: {
-
+    
   },
 
   data() {
     return {
-      catsFileNames: [],
-      loadedCats: [],
-      catsLoadingStep: 10
+      masonry: null,
+      imagesInChunk: 10,
+      loadedImages: [],
+      currentChunk: [],
+      fileList: []
     }
   },
 
   created() {
-    fetch('cats/fileList.json').then(response => {
-      response.json().then(body => {
-        this.catsFileNames = body;
-        console.log(body)
-
-        this.appendCatsChunk();
-
-        // setTimeout(() => {
-          
-        // }, 2000)
-
-        document.addEventListener('scroll', () => {
-          // console.log(document.body.clientHeight)
-          // console.log(window.scrollY + + window.innerHeight)
-
-          new Masonry(this.$refs.feed, {
-            itemSelector: '.cat-image-wrapper'
-          })
-
-          let docHeight = document.body.clientHeight
-          let scroll = window.scrollY + + window.innerHeight
-
-          if(scroll >= docHeight) {
-            this.appendCatsChunk();
-          }
-        })
-      })
-    })
-  },
-
-  watch: {
-    loadedCats() {
-      this.$refs.feed.removeEventListener('load', onCatsLoaded);
-      this.$refs.feed.addEventListener('load', onCatsLoaded);
-    }
+    document.addEventListener('scroll', this.onScrolledDownHandler)
   },
 
   mounted() {
-    
-    this.$nextTick(() => {
-      new Masonry(this.$refs.feed, {
-        itemSelector: '.cat-image-wrapper'
-      })
+    fetch('cats/fileList.json').then(async response => {
+      this.fileList = await response.json();
     })
-    
+
+    this.masonry = new Masonry(this.$refs.feed, { itemSelector: '.cat-image-wrapper', columnWidth: 333, fitWidth: true });
+  },
+
+  watch: {
+    fileList() {
+      if(this.fileList.length) {
+        this.loadChunk()
+      }
+    },
   },
 
   methods: {
-    appendCatsChunk() {
-      if(this.catsFileNames.length){
-        for(let i = 0; i < this.catsLoadingStep; i++) {
-          if(this.catsFileNames.length) {
-            this.loadedCats.push(this.catsFileNames.shift());
-          }
+    onImageClick(fileName) {
+      navigator.clipboard.writeText('https://cats.cartwheel.top/cats/' + fileName);
+    },
+
+    onScrolledDownHandler() {
+      let docHeight = document.body.clientHeight
+      let scroll = window.scrollY + + window.innerHeight
+      if(scroll >= docHeight) {
+        this.loadChunk();
+      }
+    },
+    
+    loadChunk() {
+      document.removeEventListener('scroll', this.onScrolledDownHandler)
+      
+      for(let i = 0; i < this.imagesInChunk; i++) {
+        if(this.fileList.length) {
+          this.currentChunk.push(this.fileList.shift());
+        } else {
+          break;
         }
       }
-      
-      new Masonry(this.$refs.feed, {
-        itemSelector: '.cat-image-wrapper'
-      })
-    },
 
-    onImageClick(fileName) {
-      navigator.clipboard.writeText(document.URL.replace('#/', '') + 'cats/' + fileName)
-    },
+      this.currentChunk.forEach(name => {
+          let imageWrapper = document.createElement('div');
+          imageWrapper.className = 'cat-image-wrapper';
+          let image = document.createElement('img');
+          image.onclick = this.onImageClick(name);
+          image.src = 'https://cats.cartwheel.top/cats/small/' + name;
+          image.className = 'cat-image'
+          imageWrapper.append(image)
+          image.onload = () => {
+            this.$refs.feed.append(imageWrapper)
+            this.masonry.appended(imageWrapper)
+          }
+          document.addEventListener('scroll', this.onScrolledDownHandler)
+        })
 
-    onFeedLoad() {
-      console.log('hello')
-      alert('hello')
+        this.currentChunk = [];
     }
   }
 }
 </script>
 
 
-<style scoped>
+<style>
 
   @keyframes show {
     from {
@@ -131,9 +110,6 @@ export default {
       opacity: 1;
     }
   }
-
-  
-
 
 
   h1 {
@@ -148,25 +124,23 @@ export default {
   }
 
   .feed {
-    /* display: grid; */
     flex-wrap: wrap;
     grid-template-columns: 1fr 1fr 1fr;
     gap: 10px;
-    /* row-gap: 50px; */
-    /* column-gap: 10px */
-    /* justify-content: center; */
     flex-grow: 1;
   }
 
   .container {
     max-width: 1000px;
     margin: 0 auto;
+    text-align: center;
   }
 
   .header-container {
     /* width: 600px;  */
     margin-top: 100px;
     margin-bottom: 100px;
+    padding: 0 30px;
   }
 
   .cat-image-wrapper {
@@ -179,10 +153,6 @@ export default {
 
   .cat-image {
     width: 100%;
-    /* height: 100%3; */
-    /* height: auto; */
-    /* max-height: 100%; */
-    /* min-width: 100%; */
     object-fit: cover;
     vertical-align: bottom;
     border-radius: 10px;

@@ -41,6 +41,10 @@ button {
   
 }
 
+body {
+  padding: 0;
+}
+
 button img {
   /* margin-right: 20px; */
   padding-right: 10px !important;

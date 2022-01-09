@@ -227,6 +227,11 @@ export default {
       font-size: 30px;
     }
 
+    .header-container {
+      padding: 0 10px !important;
+      margin: 50px 0;
+    }
+
     .header-container img {
       width: 70px;
     }
@@ -237,12 +242,16 @@ export default {
 
     .cat-image-wrapper {
       width: 100%;
+      padding: 10px;
     }
+
+    
   }
 
   @media screen and ( max-width: 500px ) {
     .header-container h1{
-      font-size: 20px;
+      font-size: 25px;
+      
     }
 
     .header-container img {

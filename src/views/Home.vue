@@ -1,9 +1,12 @@
 <template>
+
   <div class="container header-container">
-    <p>Альфа версия</p>
-    <h1>Набор котиков от <span style="color: orange">love1ycat</span>: <br> нажми на какого-то из них, чтобы скопироватц</h1>
-    <p>Библиотека регулярно пополняется</p>  
-    <p><button><img src="https://img.icons8.com/material-outlined/24/000000/download--v1.png"/> Скачать архивом</button></p>
+    <!-- <p>Альфа версия</p> -->
+    <img src="/images/images (1).png" width="100" alt="">    
+    <h1>Набор котиков от love1ycat🙀</h1>
+    <p>Коты копируются при нажатии</p>
+    <!-- <p>Библиотека регулярно пополняется</p>   -->
+    <!-- <p><button><img src="https://img.icons8.com/material-outlined/24/000000/download--v1.png"/> Скачать архивом</button></p> -->
   </div>
   <div class="container feed " ref="feed">
     <div @click="onImageClick(fileName)" v-for="fileName in loadedImages" :key="fileName" class="cat-image-wrapper">
@@ -59,6 +62,10 @@ export default {
   },
 
   methods: {
+    onImageClick(name) {
+      navigator.clipboard.writeText('https://cats.cartwheel.top/cats/' + name);
+    },
+
     onScrolledDownHandler() {
       let docHeight = document.body.clientHeight
       let scroll = window.scrollY + window.innerHeight
@@ -69,7 +76,7 @@ export default {
     },
 
     onImageLoad() {
-      this.masonry = new Masonry(this.$refs.feed, { itemSelector: '.cat-image-wrapper', columnWidth: 333 });
+      this.masonry = new Masonry(this.$refs.feed, { itemSelector: '.cat-image-wrapper', fitWidth: true });
     },
 
     loadChunk() {
@@ -132,7 +139,8 @@ export default {
 
 
   h1 {
-    font-family: mine;
+    font-family: f2p;
+    font-weight: 100;
     font-size: 40px;
     line-height: 1.4em;
   }
@@ -163,15 +171,25 @@ export default {
   }
 
   .header-container {
+    padding: 0 50px;
     /* width: 600px;  */
     margin-top: 100px;
     margin-bottom: 100px;
   }
 
+  .header-container img {
+    /* margin-bottom: 10px; */
+  }
+
+  .header-container h1 {
+    margin-top: 10px;
+  }
+
   .cat-image-wrapper {
     animation-name: show;
     animation-duration: 1s;
-    width: 333px;
+    /* width: 333px; */
+    width: 33.3%;
     translate: 1s;
     padding: 10px;
   }
@@ -196,5 +214,43 @@ export default {
 
   .footer {
     padding: 50px 0;
+  }
+
+  @media screen and ( max-width: 1000px ) {
+    .cat-image-wrapper {
+      width: 50%;
+    }
+  }
+
+  @media screen and ( max-width: 760px ) {
+    .header-container h1{
+      font-size: 30px;
+    }
+
+    .header-container img {
+      width: 70px;
+    }
+
+    .header-container p {
+      font-size: 16px;
+    }
+
+    .cat-image-wrapper {
+      width: 100%;
+    }
+  }
+
+  @media screen and ( max-width: 500px ) {
+    .header-container h1{
+      font-size: 20px;
+    }
+
+    .header-container img {
+      width: 50px;
+    }
+
+    .header-container p {
+      font-size: 11px;
+    }
   }
 </style>

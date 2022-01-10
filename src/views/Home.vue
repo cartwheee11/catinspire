@@ -8,7 +8,7 @@
     <img src="/images/images (1).png" width="100" alt="">    
     <!-- <p>Библиотека регулярно пополняется</p>   -->
     <h1>Набор котиков от love1ycat🙀</h1>
-    <p>Коты копируются при нажатии</p>
+    <p>Библиотека регулярно пополняется. <br>Нажми <span style="color: white; background: black; border-radius: 3px; padding: 3px 5px; margin-right: 2px">ЛКМ</span> по коту, чтобы скопировать</p>
     
     <!-- <p><button><img src="https://img.icons8.com/material-outlined/24/000000/download--v1.png"/> Скачать архивом</button></p> -->
   </div>

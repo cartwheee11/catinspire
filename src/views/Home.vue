@@ -39,7 +39,7 @@ export default {
   data() {
     return {
       masonry: null,
-      imagesInChunk: 10,
+      imagesInChunk: 1000,
       loadedImages: [],
       currentChunk: [],
       fileList: []
@@ -47,7 +47,7 @@ export default {
   },
 
   created() {
-    document.addEventListener('scroll', this.onScrolledDownHandler)
+    // document.addEventListener('scroll', this.onScrolledDownHandler)
   },
 
   mounted() {
@@ -79,8 +79,8 @@ export default {
     },
 
     onImageLoad(key) {
-      this.$refs.feed.style.width = '100%';
-      this.masonry = new Masonry(this.$refs.feed, { itemSelector: '.cat-image-wrapper', fitWidth: true, containerStyle: { width: '100%' }, percentPosition: true });
+      // this.$refs.feed.style.width = '100%';
+      this.masonry = new Masonry(this.$refs.feed, { itemSelector: '.cat-image-wrapper', fitWidth: true, containerStyle: { width: '100%' }, percentPosition: true, transitionDuration: '0s'});
       this.$refs.feed.style.width = this.$refs.feed.width;
       let ref = this.$refs.catImage[key];
       // ref.style = ref.style + ' opacity: 1';
@@ -125,6 +125,11 @@ export default {
 
   @keyframes show {
     from {
+      transform: translate(0, 20px);
+      opacity: 0;
+    }
+
+    50% {
       transform: translate(0, 20px);
       opacity: 0;
     }
@@ -203,18 +208,26 @@ export default {
 
   .show {
     animation-name: show;
-    animation-duration: 1s;
+    animation-duration: 3s;
     animation-fill-mode: forwards;
   }
 
   .cat-image-wrapper {
     /* width: 333px; */
+    /* background: #eee; */
     
     padding: 10px;
     width: 33%;
-    transition: 0.2s;
+    transition: transfrom 0.2s;
   }
 
+  .cat-image-wrapper:hover {
+    cursor: pointer;
+    transition: transform 0.2s;
+    transform:scale(0.95);
+  }
+
+  
   .cat-image {
     
     object-fit: cover;
@@ -223,16 +236,12 @@ export default {
     transition: transform 0.2s;
     background-size: cover;
     width: 100%;
+    background-color: black;
 
   }
 
 
-  .cat-image-wrapper:hover {
-    transition: transform 0.2s;
-    cursor: pointer;
-    transition: transform 0.2s;
-    transform:scale(0.95);
-  }
+ 
 
   .footer {
     padding: 50px 0;

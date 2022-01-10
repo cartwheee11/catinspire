@@ -1,20 +1,26 @@
 <template>
 
+
+  
   <div class="container header-container">
     <!-- <p>Альфа версия</p> -->
+    
     <img src="/images/images (1).png" width="100" alt="">    
+    <!-- <p>Библиотека регулярно пополняется</p>   -->
     <h1>Набор котиков от love1ycat🙀</h1>
     <p>Коты копируются при нажатии</p>
-    <!-- <p>Библиотека регулярно пополняется</p>   -->
+    
     <!-- <p><button><img src="https://img.icons8.com/material-outlined/24/000000/download--v1.png"/> Скачать архивом</button></p> -->
   </div>
-  <div class="container feed " ref="feed">
-    <div @click="onImageClick(fileName)" v-for="fileName in loadedImages" :key="fileName" class="cat-image-wrapper">
-      <img ref="catImage" @load="onImageLoad" class="cat-image" :src="'https://cats.cartwheel.top/cats/small/' + fileName" alt="">
-    </div>
 
-    
+  <div class="feed-wrapper">
+    <div class="container feed" ref="feed">
+    <div @click="onImageClick(fileName)" v-for="(fileName, key) in loadedImages" :key="fileName" class="cat-image-wrapper">
+      <img  ref="catImage" style="opacity: 0" @load="onImageLoad(key)" class="cat-image" :src="'https://cats.cartwheel.top/cats/small/' + fileName" alt="">
+    </div>
+    </div>
   </div>
+  
   <div class="footer container">
     <p v-if="!fileList.length">Коты закончились!</p>
     <img v-else class="spinner" src="https://img.icons8.com/material-rounded/24/000000/loading-sign.png"/>
@@ -56,9 +62,6 @@ export default {
         this.loadChunk()
       }
     },
-
-    currentChunk() {
-    }
   },
 
   methods: {
@@ -71,42 +74,47 @@ export default {
       let scroll = window.scrollY + window.innerHeight
       if(scroll >= docHeight) {
         this.loadChunk();
-        document.removeEventListener('scroll', this.onScrolledDownHandler);
+        // document.removeEventListener('scroll', this.onScrolledDownHandler);
       }
     },
 
-    onImageLoad() {
-      this.masonry = new Masonry(this.$refs.feed, { itemSelector: '.cat-image-wrapper', fitWidth: true });
+    onImageLoad(key) {
+      this.$refs.feed.style.width = '100%';
+      this.masonry = new Masonry(this.$refs.feed, { itemSelector: '.cat-image-wrapper', fitWidth: true, containerStyle: { width: '100%' }, percentPosition: true });
+      this.$refs.feed.style.width = this.$refs.feed.width;
+      let ref = this.$refs.catImage[key];
+      // ref.style = ref.style + ' opacity: 1';
+      ref.className = 'cat-image show'
     },
 
     loadChunk() {
       for(let i = 0; i < this.imagesInChunk; i++) {
         if(this.fileList.length) {
-          this.currentChunk.push(this.fileList.shift());
+          this.loadedImages.push(this.fileList.shift());
         } else {
           break;
         }
       }
 
-      this.currentChunk.forEach(name => {
-        fetch('https://cats.cartwheel.top/small/' + name).then(res => res.body).then( async body => { 
-          let reader = body.getReader();
-          let done;
-          while (!done) {
-            ({
-              done
-            } = await reader.read());
-            if (done) {
-              this.loadedImages = this.loadedImages.concat([ name ]);
-              if((this.loadedImages.length % this.imagesInChunk) == 0) {
-                document.addEventListener('scroll', this.onScrolledDownHandler);
-              }
-            }
-          }
-        })
-      })
+      // this.currentChunk.forEach(name => {
+      //   fetch('https://cats.cartwheel.top/small/' + name).then(res => res.body).then( async body => { 
+      //     let reader = body.getReader();
+      //     let done;
+      //     while (!done) {
+      //       ({
+      //         done
+      //       } = await reader.read());
+      //       if (done) {
+      //         this.loadedImages = this.loadedImages.concat([ name ]);
+      //         if((this.loadedImages.length % this.imagesInChunk) == 0) {
+      //           document.addEventListener('scroll', this.onScrolledDownHandler);
+      //         }
+      //       }
+      //     }
+      //   })
+      // })
 
-      this.currentChunk = [];
+      // this.currentChunk = [];
     }
   }
 }
@@ -157,17 +165,25 @@ export default {
     animation-iteration-count: infinite;
   }
 
-  .feed {
-    flex-wrap: wrap;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 10px;
-    flex-grow: 1;
-  }
-
-  .container {
+  .feed-wrapper {
+    /* width: 1000px; */
     max-width: 1000px;
     margin: 0 auto;
+  }
+
+  
+
+  .container {
+    /* width: 1000px; */
+    max-width: 1000px;
+    
+    margin: 0 auto;
     text-align: center;
+  }
+
+  .feed {
+    width: 100%;
+    position: relative;
   }
 
   .header-container {
@@ -185,27 +201,33 @@ export default {
     margin-top: 10px;
   }
 
-  .cat-image-wrapper {
+  .show {
     animation-name: show;
     animation-duration: 1s;
+    animation-fill-mode: forwards;
+  }
+
+  .cat-image-wrapper {
     /* width: 333px; */
-    width: 33.3%;
-    translate: 1s;
+    
     padding: 10px;
+    width: 33%;
+    transition: 0.2s;
   }
 
   .cat-image {
-    width: 100%;
+    
     object-fit: cover;
-    vertical-align: bottom;
     border-radius: 10px;
     display: block;
     transition: transform 0.2s;
     background-size: cover;
+    width: 100%;
 
   }
 
-  .cat-image:hover {
+
+  .cat-image-wrapper:hover {
     transition: transform 0.2s;
     cursor: pointer;
     transition: transform 0.2s;
@@ -219,6 +241,11 @@ export default {
   @media screen and ( max-width: 1000px ) {
     .cat-image-wrapper {
       width: 50%;
+    }
+
+    .feed-wrapper {
+      /* max-width: 1000px; */
+      
     }
   }
 

@@ -39,7 +39,7 @@ export default {
   data() {
     return {
       masonry: null,
-      imagesInChunk: 1000,
+      imagesInChunk: 30,
       loadedImages: [],
       currentChunk: [],
       fileList: [],
@@ -51,7 +51,7 @@ export default {
   },
 
   created() {
-    // document.addEventListener('scroll', this.onScrolledDownHandler)
+    document.addEventListener('scroll', this.onScrolledDownHandler)
   },
 
   mounted() {
@@ -219,7 +219,7 @@ export default {
 
   .show {
     animation-name: show;
-    animation-duration: 3s;
+    animation-duration: 2s;
     animation-fill-mode: forwards;
   }
 

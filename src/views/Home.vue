@@ -15,7 +15,7 @@
 
   <div class="feed-wrapper">
     <div class="container feed" ref="feed">
-    <div @click="onImageClick(fileName)" v-for="(fileName, key) in loadedImages" :key="fileName" class="cat-image-wrapper">
+    <div ref="catImageWrapper" @mouseup="onImageMouseUp(key)" @mousedown="onImageClick(fileName, key)" v-for="(fileName, key) in loadedImages" :key="fileName" class="cat-image-wrapper">
       <img  ref="catImage" style="opacity: 0" @load="onImageLoad(key)" class="cat-image" :src="'https://cats.cartwheel.top/cats/small/' + fileName" alt="">
     </div>
     </div>
@@ -42,7 +42,11 @@ export default {
       imagesInChunk: 1000,
       loadedImages: [],
       currentChunk: [],
-      fileList: []
+      fileList: [],
+      imageClickStatus: '',
+      onImageClickStyles: {
+        // transform: 'scale: (0.50)'
+      }
     }
   },
 
@@ -65,8 +69,15 @@ export default {
   },
 
   methods: {
-    onImageClick(name) {
+    onImageMouseUp(key) {
+      this.$refs.catImageWrapper[key].style.transform = '';
+    },
+
+    onImageClick(name, key) {
       navigator.clipboard.writeText('https://cats.cartwheel.top/cats/' + name);
+      this.imageClickStatus = true;
+
+      this.$refs.catImageWrapper[key].style.transform = 'scale(0.95)';
     },
 
     onScrolledDownHandler() {
@@ -218,16 +229,16 @@ export default {
     
     padding: 10px;
     width: 33%;
-    transition: transfrom 0.2s;
+    transition: transform 0.2s;
   }
 
   .cat-image-wrapper:hover {
     cursor: pointer;
     transition: transform 0.2s;
-    transform:scale(0.95);
+    transform:scale(0.98);
   }
 
-  
+
   .cat-image {
     
     object-fit: cover;
@@ -238,6 +249,10 @@ export default {
     width: 100%;
     background-color: black;
 
+  }
+
+  .cat-image:hover {
+    
   }
 
 

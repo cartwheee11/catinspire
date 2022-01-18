@@ -7,7 +7,7 @@ let dir = fs.readdirSync('./public/cats');
 console.log(dir)
 
 dir = dir.filter(fileName => { 
-  return fileName.endsWith('.jpg') || fileName.endsWith('.jpeg') || fileName.endsWith('.png')
+  return fileName.endsWith('.jpg') || fileName.endsWith('.jpeg') || fileName.endsWith('.png') || fileName.endsWith('.webp')
 })
 
 dir.forEach(file => {

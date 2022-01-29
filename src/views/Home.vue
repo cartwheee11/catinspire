@@ -1,39 +1,81 @@
 <template>
-
-
-
   <div class="container header-container">
     <!-- <p>Альфа версия</p> -->
-    
-    <img src="/images/images (1).png" width="100" alt="">    
+
+    <img src="/images/images (1).png" width="100" alt="" />
     <!-- <p>Библиотека регулярно пополняется</p>   -->
-    <h1>Набор котиков <br> от love1ycat🙀</h1>
-    <p>Библиотека регулярно пополняется. <br>Нажми <span style="color: white; background: black; border-radius: 3px; padding: 3px 5px; margin-right: 2px">ЛКМ</span> по коту, чтобы скопировать</p>
-    
+    <h1>
+      Набор котиков <br />
+      от love1ycat🙀
+    </h1>
+    <p>
+      Библиотека регулярно пополняется. <br />Нажми
+      <span
+        style="
+          color: white;
+          background: black;
+          border-radius: 3px;
+          padding: 3px 5px;
+          margin-right: 2px;
+        "
+        >ЛКМ</span
+      >
+      по коту, чтобы скопировать
+    </p>
+
     <!-- <p><button><img src="https://img.icons8.com/material-outlined/24/000000/download--v1.png"/> Скачать архивом</button></p> -->
   </div>
 
   <div class="feed-wrapper">
     <div class="container feed" ref="feed">
-    <div ref="catImageWrapper" @mouseup="onImageMouseUp(key)" @mousedown="onImageClick(fileName, key)" v-for="(fileName, key) in loadedImages" :key="fileName" class="cat-image-wrapper">
-      <img  ref="catImage" style="opacity: 0" @load="onImageLoad(key)" class="cat-image" :src="'cats/small/' + fileName" alt="">
-    </div>
+      <!-- <div
+        ref="catImageWrapper"
+        @mouseup="onImageMouseUp(key)"
+        @mousedown="onImageClick(fileName, key)"
+        v-for="(fileName, key) in loadedImages"
+        :key="fileName"
+        class="cat-image-wrapper"
+      >
+        <img
+          ref="catImage"
+          style="opacity: 0"
+          @load="onImageLoad(key)"
+          class="cat-image"
+          :src="'cats/small/' + fileName"
+          alt=""
+        />
+      </div> -->
+      <ImagePreview
+        ref="catImageWrapper"
+        @onImageLoad="onImageLoad()"
+        @mouseup="onImageMouseUp(key)"
+        @mousedown="onImageClick(fileName, key)"
+        v-for="(fileName, key) in loadedImages"
+        :src="'https://cats.cartwheel.top/cats/small/' + fileName"
+        :key="fileName"
+      />
     </div>
   </div>
-  
+
   <div class="footer container">
     <p v-if="!fileList.length">Коты закончились!</p>
-    <img v-else class="spinner" src="https://img.icons8.com/material-rounded/24/000000/loading-sign.png"/>
+    <img
+      v-else
+      class="spinner"
+      src="https://img.icons8.com/ios/50/000000/loading.png"
+    />
   </div>
 </template>
 
 <script>
-const Masonry = require('masonry-layout');
+const Masonry = require("masonry-layout");
+
+import ImagePreview from "@/components/ImagePreview.vue";
 
 export default {
-  name: 'Home',
+  name: "Home",
   components: {
-    
+    ImagePreview,
   },
 
   data() {
@@ -43,64 +85,66 @@ export default {
       loadedImages: [],
       currentChunk: [],
       fileList: [],
-      imageClickStatus: '',
+      imageClickStatus: "",
       onImageClickStyles: {
         // transform: 'scale: (0.50)'
-      }
-    }
+      },
+    };
   },
 
   created() {
-    document.addEventListener('scroll', this.onScrolledDownHandler)
+    document.addEventListener("scroll", this.onScrolledDownHandler);
   },
 
   mounted() {
-    fetch('cats/fileList.json').then(async response => {
+    fetch("cats/fileList.json").then(async (response) => {
       this.fileList = await response.json();
-    })
+    });
   },
 
   watch: {
     fileList() {
-      if(this.fileList.length) {
-        this.loadChunk()
+      if (this.fileList.length) {
+        this.loadChunk();
       }
     },
   },
 
   methods: {
     onImageMouseUp(key) {
-      this.$refs.catImageWrapper[key].style.transform = '';
+      this.$refs.catImageWrapper[key].style.transform = "";
     },
 
     onImageClick(name, key) {
-      navigator.clipboard.writeText('https://cats.cartwheel.top/cats/' + name);
+      navigator.clipboard.writeText("https://cats.cartwheel.top/cats/" + name);
       this.imageClickStatus = true;
 
-      this.$refs.catImageWrapper[key].style.transform = 'scale(0.95)';
+      this.$refs.catImageWrapper[key].style.transform = "scale(0.95)";
     },
 
     onScrolledDownHandler() {
-      let docHeight = document.body.clientHeight
-      let scroll = window.scrollY + window.innerHeight
-      if(scroll >= docHeight) {
+      let docHeight = document.body.clientHeight;
+      let scroll = window.scrollY + window.innerHeight;
+      if (scroll >= docHeight) {
         this.loadChunk();
         // document.removeEventListener('scroll', this.onScrolledDownHandler);
       }
     },
 
-    onImageLoad(key) {
-      // this.$refs.feed.style.width = '100%';
-      this.masonry = new Masonry(this.$refs.feed, { itemSelector: '.cat-image-wrapper', fitWidth: true, containerStyle: { width: '100%' }, percentPosition: true, transitionDuration: '0s'});
+    onImageLoad() {
+      this.masonry = new Masonry(this.$refs.feed, {
+        itemSelector: ".cat-image-wrapper",
+        fitWidth: true,
+        containerStyle: { width: "100%" },
+        percentPosition: true,
+        transitionDuration: "0s",
+      });
       this.$refs.feed.style.width = this.$refs.feed.width;
-      let ref = this.$refs.catImage[key];
-      // ref.style = ref.style + ' opacity: 1';
-      ref.className = 'cat-image show'
     },
 
     loadChunk() {
-      for(let i = 0; i < this.imagesInChunk; i++) {
-        if(this.fileList.length) {
+      for (let i = 0; i < this.imagesInChunk; i++) {
+        if (this.fileList.length) {
           this.loadedImages.push(this.fileList.shift());
         } else {
           break;
@@ -108,7 +152,7 @@ export default {
       }
 
       // this.currentChunk.forEach(name => {
-      //   fetch('https://cats.cartwheel.top/small/' + name).then(res => res.body).then( async body => { 
+      //   fetch('https://cats.cartwheel.top/small/' + name).then(res => res.body).then( async body => {
       //     let reader = body.getReader();
       //     let done;
       //     while (!done) {
@@ -126,191 +170,142 @@ export default {
       // })
 
       // this.currentChunk = [];
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 
 <style scoped>
-
-  @keyframes show {
-    from {
-      transform: translate(0, 20px);
-      opacity: 0;
-    }
-
-    50% {
-      transform: translate(0, 20px);
-      opacity: 0;
-    }
-
-    to {
-      transform: translate(0, 0px);
-      opacity: 1;
-    }
+@keyframes show {
+  from {
+    transform: translate(0, 20px);
+    opacity: 0;
   }
 
-  @keyframes spin {
-    from {
-      transform: rotate(0)
-    }
-
-    to {
-      transform: rotate(360deg);
-    }
+  50% {
+    transform: translate(0, 20px);
+    opacity: 0;
   }
 
+  to {
+    transform: translate(0, 0px);
+    opacity: 1;
+  }
+}
 
-  h1 {
-    font-family: f2p;
-    font-weight: 100;
-    font-size: 40px;
-    line-height: 1.4em;
+@keyframes spin {
+  from {
+    transform: rotate(0);
   }
 
-  p {
-    font-family: mine;
-    font-size: 20px;
+  to {
+    transform: rotate(360deg);
   }
+}
 
-  .spinner {
-    animation-name: spin;
-    animation-duration: 0.2s;
-    opacity: 0.5;
-    animation-iteration-count: infinite;
+h1 {
+  font-family: f2p;
+  font-weight: 100;
+  font-size: 40px;
+  line-height: 1.4em;
+}
+
+p {
+  font-family: mine;
+  font-size: 20px;
+}
+
+.spinner {
+  animation-name: spin;
+  animation-duration: 1s;
+  /* opacity: 0.5; */
+  animation-iteration-count: infinite;
+}
+
+.feed-wrapper {
+  /* width: 1000px; */
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.container {
+  /* width: 1000px; */
+  max-width: 1000px;
+
+  margin: 0 auto;
+  text-align: center;
+}
+
+.feed {
+  width: 100%;
+  position: relative;
+}
+
+.header-container {
+  padding: 0 50px;
+  /* width: 600px;  */
+  margin-top: 100px;
+  margin-bottom: 100px;
+}
+
+.header-container img {
+  /* margin-bottom: 10px; */
+}
+
+.header-container h1 {
+  margin-top: 10px;
+}
+
+.footer {
+  padding: 50px 0;
+}
+
+@media screen and (max-width: 1000px) {
+  .cat-image-wrapper {
+    width: 50%;
   }
 
   .feed-wrapper {
-    /* width: 1000px; */
-    max-width: 1000px;
-    margin: 0 auto;
+    /* max-width: 1000px; */
   }
+}
 
-  
-
-  .container {
-    /* width: 1000px; */
-    max-width: 1000px;
-    
-    margin: 0 auto;
-    text-align: center;
-  }
-
-  .feed {
-    width: 100%;
-    position: relative;
+@media screen and (max-width: 760px) {
+  .header-container h1 {
+    font-size: 30px;
   }
 
   .header-container {
-    padding: 0 50px;
-    /* width: 600px;  */
-    margin-top: 100px;
-    margin-bottom: 100px;
+    padding: 0 10px !important;
+    margin: 50px 0;
   }
 
   .header-container img {
-    /* margin-bottom: 10px; */
+    width: 70px;
   }
 
-  .header-container h1 {
-    margin-top: 10px;
-  }
-
-  .show {
-    animation-name: show;
-    animation-duration: 2s;
-    animation-fill-mode: forwards;
+  .header-container p {
+    font-size: 16px;
   }
 
   .cat-image-wrapper {
-    /* width: 333px; */
-    /* background: #eee; */
-    
-    padding: 10px;
-    width: 33%;
-    transition: transform 0.2s;
-  }
-
-  .cat-image-wrapper:hover {
-    cursor: pointer;
-    transition: transform 0.2s;
-    transform:scale(0.98);
-  }
-
-
-  .cat-image {
-    
-    object-fit: cover;
-    border-radius: 10px;
-    display: block;
-    transition: transform 0.2s;
-    background-size: cover;
     width: 100%;
-    background-color: black;
+    padding: 10px;
+  }
+}
 
+@media screen and (max-width: 500px) {
+  .header-container h1 {
+    font-size: 25px;
   }
 
-  .cat-image:hover {
-    
+  .header-container img {
+    width: 50px;
   }
 
-
- 
-
-  .footer {
-    padding: 50px 0;
+  .header-container p {
+    font-size: 11px;
   }
-
-  @media screen and ( max-width: 1000px ) {
-    .cat-image-wrapper {
-      width: 50%;
-    }
-
-    .feed-wrapper {
-      /* max-width: 1000px; */
-      
-    }
-  }
-
-  @media screen and ( max-width: 760px ) {
-    .header-container h1{
-      font-size: 30px;
-    }
-
-    .header-container {
-      padding: 0 10px !important;
-      margin: 50px 0;
-    }
-
-    .header-container img {
-      width: 70px;
-    }
-
-    .header-container p {
-      font-size: 16px;
-    }
-
-    .cat-image-wrapper {
-      width: 100%;
-      padding: 10px;
-    }
-
-    
-  }
-
-  @media screen and ( max-width: 500px ) {
-    .header-container h1{
-      font-size: 25px;
-      
-    }
-
-    .header-container img {
-      width: 50px;
-    }
-
-    .header-container p {
-      font-size: 11px;
-    }
-  }
+}
 </style>

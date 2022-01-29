@@ -28,7 +28,13 @@
     <div class="filter">
       <p>
         <router-link to="/">Все коты</router-link>
-        <router-link to="/favorites">Только избранные</router-link>
+        <router-link
+          :style="
+            favourites.length ? 'opacity: 1' : 'opacity: 0.5; border: none'
+          "
+          :to="favourites.length ? '/favorites' : '/'"
+          >Только избранные</router-link
+        >
       </p>
     </div>
     <div class="container feed" ref="feed">
@@ -65,7 +71,10 @@
     </div>
   </div>
 
-  <div class="footer container">
+  <div
+    :style="this.$route.path == '/favorites' ? 'opacity: 0' : 'opacity: 1'"
+    class="footer container"
+  >
     <p v-if="!fileList.length">Коты закончились!</p>
     <img
       v-else
@@ -120,6 +129,19 @@ export default {
       }
     },
 
+    favourites() {
+      // console.log(this.favourites);
+      if (!this.favourites.length) {
+        this.$router.push({ name: "Home" });
+      }
+
+      if (this.$route.path == "/favorites") {
+        this.$nextTick(() => {
+          this.onImageLoad();
+        });
+      }
+    },
+
     $route() {
       console.log("пвжаопджвлыаповалдыжпоыджлавпоываджлпоыавджлповыаджлпо");
       this.$nextTick(() => {
@@ -134,7 +156,9 @@ export default {
       console.log(this.favourites);
       let i = this.favourites.indexOf(key);
       if (i != -1) {
-        this.favourites.splice(i, 1);
+        this.favourites = this.favourites
+          .slice(0, i)
+          .concat(this.favourites.slice(i + 1, this.favourites.length));
       } else {
         this.favourites.push(key);
       }

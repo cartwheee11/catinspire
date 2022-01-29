@@ -2,8 +2,7 @@
   <div class="container header-container">
     <!-- <p>Альфа версия</p> -->
 
-    <img src="/images/images (1).png" width="100" alt="" />
-    <!-- <p>Библиотека регулярно пополняется</p>   -->
+    <img class="header-icon" src="/images/images (1).png" width="100" alt="" />
     <h1>
       Набор котиков <br />
       от love1ycat🙀
@@ -22,11 +21,16 @@
       >
       по коту, чтобы скопировать
     </p>
-
     <!-- <p><button><img src="https://img.icons8.com/material-outlined/24/000000/download--v1.png"/> Скачать архивом</button></p> -->
   </div>
 
   <div class="feed-wrapper">
+    <div class="filter">
+      <p>
+        <router-link to="/">Все коты</router-link>
+        <router-link to="/favorites">Только избранные</router-link>
+      </p>
+    </div>
     <div class="container feed" ref="feed">
       <!-- <div
         ref="catImageWrapper"
@@ -48,11 +52,15 @@
       <ImagePreview
         ref="catImageWrapper"
         @onImageLoad="onImageLoad()"
-        @mouseup="onImageMouseUp(key)"
-        @mousedown="onImageClick(fileName, key)"
-        v-for="(fileName, key) in loadedImages"
+        @mouse-up="onImageMouseUp(key)"
+        @mouse-down="onImageClick(fileName, key)"
+        @switchFav="switchFav(fileName)"
+        v-for="(fileName, key) in this.$route.path == '/'
+          ? loadedImages
+          : favourites"
         :src="'https://cats.cartwheel.top/cats/small/' + fileName"
         :key="fileName"
+        :isFavourite="favourites.indexOf(fileName) > -1"
       />
     </div>
   </div>
@@ -89,6 +97,7 @@ export default {
       onImageClickStyles: {
         // transform: 'scale: (0.50)'
       },
+      favourites: [],
     };
   },
 
@@ -97,6 +106,8 @@ export default {
   },
 
   mounted() {
+    this.favourites =
+      JSON.parse(window.localStorage.getItem("favorites")) || [];
     fetch("cats/fileList.json").then(async (response) => {
       this.fileList = await response.json();
     });
@@ -108,18 +119,38 @@ export default {
         this.loadChunk();
       }
     },
+
+    $route() {
+      console.log("пвжаопджвлыаповалдыжпоыджлавпоываджлпоыавджлповыаджлпо");
+      this.$nextTick(() => {
+        this.onImageLoad();
+      });
+    },
   },
 
   methods: {
-    onImageMouseUp(key) {
-      this.$refs.catImageWrapper[key].style.transform = "";
+    switchFav(key) {
+      console.log(key);
+      console.log(this.favourites);
+      let i = this.favourites.indexOf(key);
+      if (i != -1) {
+        this.favourites.splice(i, 1);
+      } else {
+        this.favourites.push(key);
+      }
+
+      window.localStorage.setItem("favorites", JSON.stringify(this.favourites));
+
+      console.log(window.localStorage);
     },
 
-    onImageClick(name, key) {
+    onImageMouseUp() {},
+
+    onImageClick(name) {
       navigator.clipboard.writeText("https://cats.cartwheel.top/cats/" + name);
       this.imageClickStatus = true;
 
-      this.$refs.catImageWrapper[key].style.transform = "scale(0.95)";
+      // this.$refs.catImageWrapper[key].style.transform = "scale(0.95)";
     },
 
     onScrolledDownHandler() {
@@ -140,6 +171,8 @@ export default {
         transitionDuration: "0s",
       });
       this.$refs.feed.style.width = this.$refs.feed.width;
+      // this.$refs.feed.style.margin = "0px";
+      this.$refs.feed.style.width = "100%";
     },
 
     loadChunk() {
@@ -216,6 +249,21 @@ p {
   font-size: 20px;
 }
 
+a {
+  color: black;
+  text-decoration: none;
+}
+
+.filter a {
+  /* margin-right: 20px; */
+  margin: 0 10px;
+}
+
+.filter a:active,
+.filter .router-link-active {
+  border-bottom: 2px black solid;
+}
+
 .spinner {
   animation-name: spin;
   animation-duration: 1s;
@@ -285,7 +333,8 @@ p {
     width: 70px;
   }
 
-  .header-container p {
+  p,
+  a {
     font-size: 16px;
   }
 
@@ -296,15 +345,28 @@ p {
 }
 
 @media screen and (max-width: 500px) {
+  * {
+    text-align: left;
+  }
+
+  .header-icon {
+    display: none;
+  }
+
   .header-container h1 {
     font-size: 25px;
+  }
+
+  .header-container {
+    margin-top: 25px;
   }
 
   .header-container img {
     width: 50px;
   }
 
-  .header-container p {
+  p,
+  a {
     font-size: 11px;
   }
 }

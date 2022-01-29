@@ -63,7 +63,7 @@
         @switchFav="switchFav(fileName)"
         v-for="(fileName, key) in this.$route.path == '/'
           ? loadedImages
-          : favourites"
+          : [].concat(favourites).reverse()"
         :src="'https://cats.cartwheel.top/cats/small/' + fileName"
         :key="fileName"
         :isFavourite="favourites.indexOf(fileName) > -1"

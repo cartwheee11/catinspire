@@ -1,7 +1,7 @@
 <template>
 
 
-  
+
   <div class="container header-container">
     <!-- <p>Альфа версия</p> -->
     

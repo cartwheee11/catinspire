@@ -11,7 +11,7 @@ dir = dir.filter(fileName => {
 })
 
 dir.forEach(file => {
-  sharp('./public/cats/' + file).resize({ width: 333 }).toBuffer().then(data => {
+  sharp('./public/cats/' + file).resize({ width: 333 }).toFormat('jpeg').toBuffer().then(data => {
     fs.writeFileSync('./public/cats/small/' + file.replace(' ', '%20'), data)
   })
 })

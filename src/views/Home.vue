@@ -16,7 +16,7 @@
   <div class="feed-wrapper">
     <div class="container feed" ref="feed">
     <div ref="catImageWrapper" @mouseup="onImageMouseUp(key)" @mousedown="onImageClick(fileName, key)" v-for="(fileName, key) in loadedImages" :key="fileName" class="cat-image-wrapper">
-      <img  ref="catImage" style="opacity: 0" @load="onImageLoad(key)" class="cat-image" :src="'https://cats.cartwheel.top/cats/small/' + fileName" alt="">
+      <img  ref="catImage" style="opacity: 0" @load="onImageLoad(key)" class="cat-image" :src="'cats/small/' + fileName" alt="">
     </div>
     </div>
   </div>

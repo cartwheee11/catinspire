@@ -1,7 +1,5 @@
 <template>
   <div class="container header-container">
-    <!-- <p>Альфа версия</p> -->
-
     <img class="header-icon" src="/images/images (1).png" width="100" alt="" />
     <h1>
       Набор котиков <br />
@@ -21,7 +19,6 @@
       >
       по коту, чтобы скопировать
     </p>
-    <!-- <p><button><img src="https://img.icons8.com/material-outlined/24/000000/download--v1.png"/> Скачать архивом</button></p> -->
   </div>
 
   <div class="feed-wrapper">
@@ -38,23 +35,6 @@
       </p>
     </div>
     <div class="container feed" ref="feed">
-      <!-- <div
-        ref="catImageWrapper"
-        @mouseup="onImageMouseUp(key)"
-        @mousedown="onImageClick(fileName, key)"
-        v-for="(fileName, key) in loadedImages"
-        :key="fileName"
-        class="cat-image-wrapper"
-      >
-        <img
-          ref="catImage"
-          style="opacity: 0"
-          @load="onImageLoad(key)"
-          class="cat-image"
-          :src="'cats/small/' + fileName"
-          alt=""
-        />
-      </div> -->
       <ImagePreview
         ref="catImageWrapper"
         @onImageLoad="onImageLoad()"
@@ -103,9 +83,6 @@ export default {
       currentChunk: [],
       fileList: [],
       imageClickStatus: "",
-      onImageClickStyles: {
-        // transform: 'scale: (0.50)'
-      },
       favourites: [],
     };
   },
@@ -130,7 +107,6 @@ export default {
     },
 
     favourites() {
-      // console.log(this.favourites);
       if (!this.favourites.length) {
         this.$router.push({ name: "Home" });
       }
@@ -143,7 +119,6 @@ export default {
     },
 
     $route() {
-      console.log("пвжаопджвлыаповалдыжпоыджлавпоываджлпоыавджлповыаджлпо");
       this.$nextTick(() => {
         this.onImageLoad();
       });
@@ -152,8 +127,6 @@ export default {
 
   methods: {
     switchFav(key) {
-      console.log(key);
-      console.log(this.favourites);
       let i = this.favourites.indexOf(key);
       if (i != -1) {
         this.favourites = this.favourites
@@ -164,8 +137,6 @@ export default {
       }
 
       window.localStorage.setItem("favorites", JSON.stringify(this.favourites));
-
-      console.log(window.localStorage);
     },
 
     onImageMouseUp() {},
@@ -173,8 +144,6 @@ export default {
     onImageClick(name) {
       navigator.clipboard.writeText("https://cats.cartwheel.top/cats/" + name);
       this.imageClickStatus = true;
-
-      // this.$refs.catImageWrapper[key].style.transform = "scale(0.95)";
     },
 
     onScrolledDownHandler() {
@@ -182,7 +151,6 @@ export default {
       let scroll = window.scrollY + window.innerHeight;
       if (scroll >= docHeight) {
         this.loadChunk();
-        // document.removeEventListener('scroll', this.onScrolledDownHandler);
       }
     },
 
@@ -195,7 +163,6 @@ export default {
         transitionDuration: "0s",
       });
       this.$refs.feed.style.width = this.$refs.feed.width;
-      // this.$refs.feed.style.margin = "0px";
       this.$refs.feed.style.width = "100%";
     },
 
@@ -281,11 +248,16 @@ a {
 .filter a {
   /* margin-right: 20px; */
   margin: 0 10px;
+  padding-bottom: 5px;
+}
+
+.filter a:hover {
+  border-bottom: 4px #aaa solid;
 }
 
 .filter a:active,
 .filter .router-link-active {
-  border-bottom: 2px black solid;
+  border-bottom: 4px black solid;
 }
 
 .spinner {

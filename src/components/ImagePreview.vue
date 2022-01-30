@@ -122,18 +122,8 @@ export default {
     },
 
     onImageLoad() {
-      // // this.$refs.feed.style.width = '100%';
-      // this.masonry = new Masonry(this.$refs.feed, {
-      //   itemSelector: ".cat-image-wrapper",
-      //   fitWidth: true,
-      //   containerStyle: { width: "100%" },
-      //   percentPosition: true,
-      //   transitionDuration: "0s",
-      // });
-      // this.$refs.feed.style.width = this.$refs.feed.width;
       let ref = this.$refs.image;
       ref.style = ref.style + " opacity: 1";
-      // ref.className = "cat-image show";
       this.$refs.catImageWrapper.className = "cat-image-wrapper show";
       this.$emit("onImageLoad");
     },

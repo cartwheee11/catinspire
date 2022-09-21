@@ -3,7 +3,7 @@
     <img class="header-icon" src="/images/images (1).png" width="100" alt="" />
     <h1>
       Набор котиков <br />
-      от love1ycat🙀
+      от kitttify🙀
     </h1>
     <p>
       Библиотека регулярно пополняется. <br />Нажми

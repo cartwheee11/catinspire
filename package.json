@@ -4,23 +4,29 @@
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
-    "sort": "node public/cats/sort.js",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "sort": "node public/cats/sort.js"
   },
   "dependencies": {
+    "@hcaptcha/vue3-hcaptcha": "^1.0.1",
     "core-js": "^3.6.5",
     "exif": "^0.6.0",
     "exif-parser": "^0.1.12",
+    "faunadb": "^4.7.0",
     "masonry-layout": "^4.2.2",
+    "node-fetch": "^2.6.1",
     "sharp": "^0.29.3",
+    "vercel": "^28.4.12",
     "vue": "^3.0.0",
-    "vue-router": "^4.0.0-0"
+    "vue-router": "^4.0.0-0",
+    "vuex": "^4.0.0-0"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.5.0",
     "@vue/cli-plugin-eslint": "~4.5.0",
     "@vue/cli-plugin-router": "~4.5.0",
+    "@vue/cli-plugin-vuex": "~4.5.19",
     "@vue/cli-service": "~4.5.0",
     "@vue/compiler-sfc": "^3.0.0",
     "babel-eslint": "^10.1.0",

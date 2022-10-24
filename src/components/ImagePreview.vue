@@ -11,7 +11,7 @@
       @mouseup="onMouseUp"
     />
 
-    <div class="fav-button" @click="switchFav">
+    <div class="fav-button show" @click="switchFav">
       <svg
         v-if="isFavourite"
         class="fav-icon"
@@ -88,106 +88,115 @@
 </template>
 
 <script>
-export default {
-  props: {
-    src: {
-      type: String,
-      required: true,
+  export default {
+    props: {
+      src: {
+        type: String,
+        required: true,
+      },
+
+      isFavourite: {
+        type: Boolean,
+        required: false,
+        default: false,
+      },
     },
 
-    isFavourite: {
-      type: Boolean,
-      required: false,
-      default: false,
-    },
-  },
+    methods: {
+      switchFav() {
+        this.$emit("switchFav");
+      },
 
-  methods: {
-    switchFav() {
-      this.$emit("switchFav");
-    },
+      onFavIconClick() {
+        this.$emit("fav-icon-click");
+      },
 
-    onFavIconClick() {
-      this.$emit("fav-icon-click");
-    },
+      onMouseDown() {
+        this.$refs.catImageWrapper.style.transform = "scale(0.95)";
+        this.$emit("mouse-down");
+      },
 
-    onMouseDown() {
-      this.$refs.catImageWrapper.style.transform = "scale(0.95)";
-      this.$emit("mouse-down");
-    },
+      onMouseUp() {
+        this.$refs.catImageWrapper.style.transform = "";
+        this.$emit("mouse-up");
+      },
 
-    onMouseUp() {
-      this.$refs.catImageWrapper.style.transform = "";
-      this.$emit("mouse-up");
+      onImageLoad() {
+        let ref = this.$refs.image;
+        ref.style = ref.style + " opacity: 1";
+        this.$refs.catImageWrapper.className = "cat-image-wrapper show";
+        this.$emit("onImageLoad");
+      },
     },
-
-    onImageLoad() {
-      let ref = this.$refs.image;
-      ref.style = ref.style + " opacity: 1";
-      this.$refs.catImageWrapper.className = "cat-image-wrapper show";
-      this.$emit("onImageLoad");
-    },
-  },
-};
+  };
 </script>
 
-<style>
-@keyframes show {
-  from {
-    transform: translate(0, 20px);
-    opacity: 0;
+<style scoped>
+  img {
+    /* border: 5px solid white; */
+    /* border-bottom: 50px solid white; */
   }
 
-  50% {
-    transform: translate(0, 20px);
-    opacity: 0;
+  @keyframes show {
+    from {
+      transform: translate(0, 20px);
+      opacity: 0;
+    }
+
+    50% {
+      transform: translate(0, 20px);
+      opacity: 0;
+    }
+
+    to {
+      transform: translate(0, 0px);
+      opacity: 1;
+    }
   }
 
-  to {
-    transform: translate(0, 0px);
-    opacity: 1;
+  .fav-button {
+    opacity: inherit;
+    transition: trasition 0.2s;
   }
-}
 
-.fav-icon {
-  z-index: 1;
-  top: 20px;
-  right: 20px;
-  width: 30px;
-  position: absolute;
-  transition: transform 0.2s;
-}
+  .fav-icon {
+    z-index: 1;
+    top: 20px;
+    right: 20px;
+    width: 30px;
+    position: absolute;
+  }
 
-.fav-icon:hover {
-  transform: scale(1.2);
-}
+  .fav-icon:hover {
+    transform: scale(1.2);
+  }
 
-.show {
-  animation-name: show;
-  animation-duration: 2s;
-  /* animation-fill-mode: forwards; */
-}
+  .show {
+    animation-name: show;
+    animation-duration: 2s;
+    /* animation-fill-mode: forwards; */
+  }
 
-.cat-image-wrapper {
-  padding: 10px;
-  width: 33%;
-  transition: transform 0.2s;
-}
+  .cat-image-wrapper {
+    padding: 10px;
+    width: 50%;
+    transition: transform 0.2s;
+  }
 
-.cat-image-wrapper:hover {
-  cursor: pointer;
-  transition: transform 0.2s;
-  transform: scale(0.98);
-  position: relative;
-}
+  .cat-image-wrapper:hover {
+    cursor: pointer;
+    transition: transform 0.2s;
+    transform: scale(0.98);
+    position: relative;
+  }
 
-.cat-image {
-  object-fit: cover;
-  border-radius: 10px;
-  display: block;
-  transition: transform 0.2s;
-  background-size: cover;
-  width: 100%;
-  background-color: black;
-}
+  .cat-image {
+    object-fit: cover;
+    border-radius: 25px;
+    display: block;
+    transition: transform 0.2s;
+    background-size: cover;
+    width: 100%;
+    background-color: black;
+  }
 </style>

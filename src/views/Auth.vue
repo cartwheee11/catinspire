@@ -12,7 +12,11 @@
         <h2 v-if="$route.params.action == 'login'">Вход в аккаунт</h2>
         <h2 v-if="$route.params.action == 'register'">Регистрация</h2>
         <div v-if="$route.params.action == 'login'" class="inputs">
-          <smart-input v-model="login.login" type="text" placeholder="Логин" />
+          <smart-input
+            v-model="login.username"
+            type="text"
+            placeholder="Имя пользователя"
+          />
           <smart-input
             v-model="login.pass"
             type="password"
@@ -27,7 +31,8 @@
             :key="captchaKey"
           ></vue-hcaptcha>
           <button
-            :disabled="!allowLogin || login.login == '' || login.pass == ''"
+            :disabled="!allowLogin || login.username == '' || login.pass == ''"
+            @click="doLogin"
           >
             Войти
           </button>
@@ -35,12 +40,12 @@
 
         <div v-if="$route.params.action == 'register'" class="inputs">
           <smart-input
-            v-model="register.login"
+            :validator="registerUsernameValidator"
+            v-model="register.username"
+            class="nickname"
             type="text"
-            class="register-login"
-            placeholder="Логин"
-            :validator="(value) => value.length >= 3"
-            v-model:isValid="registerValidation.login"
+            v-model:isValid="registerValidation.username"
+            placeholder="Имя пользователя"
           />
           <smart-input
             v-model="register.pass"
@@ -59,14 +64,6 @@
             :validator="(value) => value === register.pass"
             v-model:isValid="registerValidation.repeatPass"
             placeholder="Повторите пароль"
-          />
-          <smart-input
-            :validator="registerNicknameValidator"
-            v-model="register.nickname"
-            class="nickname"
-            type="text"
-            v-model:isValid="registerValidation.nickname"
-            placeholder="Придумайте ник"
           />
 
           <!-- <smart-input placeholder="привет" /> -->
@@ -109,20 +106,18 @@
         allowLogin: false,
         sitekey: process.env.VUE_APP_HCAPTCHA_SITEKEY,
         login: {
-          login: "",
+          username: "",
           pass: "",
         },
         registerValidation: {
-          login: false,
           pass: false,
           repeatPass: false,
-          nickname: false,
+          username: false,
           captcha: false,
         },
         register: {
-          login: "",
           pass: "",
-          nickname: "",
+          username: "",
           repeatPass: "",
         },
       };
@@ -130,12 +125,11 @@
 
     computed: {
       isRegisterFormValid() {
-        const { login, pass, repeatPass, nickname, captcha } =
-          this.registerValidation;
+        const { pass, repeatPass, username, captcha } = this.registerValidation;
 
         // const { login, pass, repeatPass, nickname } = this.registerValidation;
         console.log(this.registerValidation);
-        return login && pass && repeatPass && nickname && captcha;
+        return pass && repeatPass && username && captcha;
         // return login && pass && repeatPass && nickname;
       },
     },
@@ -155,8 +149,26 @@
     },
 
     methods: {
-      async registerNicknameValidator() {
-        return !(await api.auth.isNicknameUsing(this.register.nickname));
+      doLogin() {
+        this.allowLogin = false;
+        this.captchaKey++;
+        this.$refs.modal.show(null, "секунду");
+        api.auth
+          .login(this.login.username, this.login.pass, this.hToken)
+          .then((res) => {
+            if (res.success) {
+              console.log(res);
+              this.$refs.modal.show(null, "успешно");
+              this.$store.commit("setAuth", res.auth);
+              this.$store.dispatch("updateUserInfo");
+            } else {
+              this.$refs.modal.show("ошибка", res.message);
+            }
+          });
+      },
+
+      async registerUsernameValidator() {
+        return !(await api.auth.isUsernameUsing(this.register.username));
       },
 
       loginCaptchaVerify(token) {
@@ -174,10 +186,10 @@
         this.captchaKey++; //rerender captcha
         this.$refs.modal.show(null, "Регистрируем...");
         this.registerValidation.captcha = false;
-        const { login, pass, repeatPass, nickname } = this.register;
+        const { pass, repeatPass, username } = this.register;
         if (pass === repeatPass) {
           const token = this.hToken;
-          api.auth.register(login, pass, nickname, token).then((response) => {
+          api.auth.register(username, pass, token).then((response) => {
             if (!response.success) {
               this.$refs.modal.show("Ошибка", response.message);
             } else {
@@ -185,6 +197,7 @@
               console.log(response);
               if (response.auth) {
                 this.$store.commit("setAuth", response.auth);
+                this.$store.dispatch("updateUserInfo");
                 this.$router.push("/");
               }
             }
@@ -252,9 +265,13 @@
     min-width: 0px;
   }
 
-  .repeat-password,
   .nickname {
     grid-column: span 2;
+  }
+
+  .repeat-password,
+  .nickname {
+    /* grid-column: span 2; */
   }
 
   .nickname.invalid::after {

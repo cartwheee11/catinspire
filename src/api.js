@@ -17,13 +17,12 @@ cats.get = async function (size, after) {
 };
 
 const auth = {
-  register: async function (login, pass, nickname, hToken) {
+  register: async function (username, pass, hToken) {
     const result = await fetch(apiUrl + "/auth/register", {
       method: "post",
       body: JSON.stringify({
-        login,
+        username,
         pass,
-        nickname,
         hToken,
       }),
     });
@@ -33,11 +32,11 @@ const auth = {
     return json;
   },
 
-  login: async function (login, pass, hToken) {
+  login: async function (username, pass, hToken) {
     const result = await fetch(apiUrl + "/auth/login", {
       method: "post",
       body: JSON.stringify({
-        login,
+        username,
         pass,
         hToken,
       }),
@@ -67,11 +66,11 @@ const auth = {
     return res.json();
   },
 
-  isNicknameUsing: async function (nickname) {
-    const result = await fetch(apiUrl + "/auth/isnicknameusing", {
+  isUsernameUsing: async function (username) {
+    const result = await fetch(apiUrl + "/auth/isusernameusing", {
       method: "post",
       body: JSON.stringify({
-        nickname,
+        username,
       }),
     });
 

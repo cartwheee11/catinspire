@@ -1,8 +1,9 @@
 const fauna = require("faunadb");
 const db = require("../../src/service/getDb");
-const bcrypt = require("bcrypt");
 
 const fetch = require("node-fetch");
+
+const bcrypt = require("bcrypt");
 
 let q = fauna.query;
 
@@ -11,7 +12,7 @@ export default async function (req, res) {
 
   req.body = JSON.parse(req.body);
 
-  const { login, pass, hToken } = req.body;
+  const { username, pass, hToken } = req.body;
 
   const details = {
     secret: process.env.HCAPTCHA_SECRET,
@@ -33,7 +34,7 @@ export default async function (req, res) {
 
   formBody = formBody.join("&");
 
-  console.log(formBody);
+  // console.log(formBody);
 
   let hRes = await fetch("https://hcaptcha.com/siteverify", {
     method: "post",
@@ -59,25 +60,37 @@ export default async function (req, res) {
 
     const date = Date.now();
 
-    db.query(
-      q.Update(q.Collection("users"), {
-        data: {
-          token,
-          lastAuthDate: date,
-        },
-      })
-    )
+    db.query(q.Get(q.Match(q.Index("user-by-username"), username)))
       .then((result) => {
+        //check if pass is wrong
+
         result = JSON.parse(JSON.stringify(result));
-        res.json({
-          success: true,
-          auth: {
-            success: true,
-            auth: {
-              token,
-              id: result["ref"]["@ref"]["id"],
-            },
-          },
+
+        const hash = result.data.pass;
+
+        bcrypt.compare(pass, hash).then((ans) => {
+          if (ans) {
+            db.query(
+              q.Update(
+                q.Ref(q.Collection("users"), result["ref"]["@ref"]["id"]),
+                {
+                  data: {
+                    token,
+                    lastAuthDate: date,
+                  },
+                }
+              )
+            );
+            res.json({
+              success: true,
+              auth: {
+                token,
+                id: result["ref"]["@ref"]["id"],
+              },
+            });
+          } else {
+            res.json({ success: false, message: "Неверный пароль" });
+          }
         });
       })
       .catch((error) => {
@@ -85,7 +98,7 @@ export default async function (req, res) {
         console.log(error);
         res.json({
           success: false,
-          message: "Ошибка базы данных, обратитесь к разрабу в дс",
+          message: "Имя пользователя не найдено",
         });
       });
   } else {

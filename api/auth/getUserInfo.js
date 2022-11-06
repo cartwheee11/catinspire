@@ -1,8 +1,8 @@
 const fauna = require("faunadb");
 const db = require("../../src/service/getDb");
-const bcrypt = require("bcrypt");
+// const bcrypt = require("bcrypt");
 
-const fetch = require("node-fetch");
+// const fetch = require("node-fetch");
 
 let q = fauna.query;
 
@@ -29,9 +29,8 @@ export default async function (req, res) {
           res.json({
             success: true,
             user: {
-              login: user.data.login,
               avatar: user.data.avatar,
-              nickname: user.data.nickname,
+              username: user.data.username,
               cats: user.data.cats,
               favourites: user.data.favorites,
             },

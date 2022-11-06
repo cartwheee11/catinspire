@@ -1,4 +1,5 @@
 import { createStore } from "vuex";
+import * as api from "../api.js";
 
 export default createStore({
   state() {
@@ -27,6 +28,16 @@ export default createStore({
     },
   },
   actions: {
+    updateUserInfo(context) {
+      context.commit("updateAuth");
+      // console.log('привет')
+      api.auth.getUserInfo(context.state.auth).then((result) => {
+        if (result.success) {
+          context.commit("setUser", result.user);
+        }
+      });
+    },
+
     auth(context) {
       // localStorage.setItem("auth");
       context.commit("updateAuth");

@@ -11,7 +11,7 @@ export default async function (req, res) {
 
   req.body = JSON.parse(req.body);
 
-  const { login, pass, nickname, hToken } = req.body;
+  const { username, pass, hToken } = req.body;
   const details = {
     secret: process.env.HCAPTCHA_SECRET,
     response: hToken,
@@ -49,15 +49,15 @@ export default async function (req, res) {
 
   if (hRes.success) {
     //проверить, нет ли совпадений по никам
-    const isNicknameUsingRsponse = await fetch(
-      process.env.VUE_APP_API_URL + "/auth/isnicknameusing",
+    const isUsernameUsingRsponse = await fetch(
+      process.env.VUE_APP_API_URL + "/auth/isusernameusing",
       {
         method: "post",
-        body: JSON.stringify({ nickname }),
+        body: JSON.stringify({ username }),
       }
     );
 
-    if (await isNicknameUsingRsponse.json()) {
+    if (await isUsernameUsingRsponse.json()) {
       res.json({
         success: false,
         message: "Никнейм уже используется",
@@ -82,9 +82,8 @@ export default async function (req, res) {
     db.query(
       q.Create(q.Collection("users"), {
         data: {
-          login,
           pass: hash,
-          nickname,
+          username,
           token,
           registerDate: date,
           lastAuthDate: date,

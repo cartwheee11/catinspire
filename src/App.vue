@@ -9,8 +9,8 @@
           <!-- <router-link to="/about">О сайте</router-link> -->
         </div>
         <div class="right-menu-part">
-          <router-link v-if="!user" to="/auth">Войти</router-link>
-          <span v-else>{{ user.nickname }}</span>
+          <router-link v-if="!$store.state.user" to="/auth">Войти</router-link>
+          <span v-else>{{ $store.state.user.username }}</span>
         </div>
       </div>
     </div>
@@ -36,10 +36,10 @@
           console.log(info);
 
           if (info.success === false) {
-            // this.$router.push("/auth/login");
             this.$store.commit("logOut");
           } else {
-            this.user = info.user;
+            // this.user = info.user;
+            this.$store.commit("setUser", info.user);
           }
         });
       }

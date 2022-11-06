@@ -17,14 +17,61 @@ cats.get = async function (size, after) {
 };
 
 const auth = {
-  register: async function (login, pass, nickname, token) {
+  register: async function (login, pass, nickname, hToken) {
     const result = await fetch(apiUrl + "/auth/register", {
       method: "post",
       body: JSON.stringify({
         login,
         pass,
         nickname,
-        token,
+        hToken,
+      }),
+    });
+
+    let json = await result.json();
+
+    return json;
+  },
+
+  login: async function (login, pass, hToken) {
+    const result = await fetch(apiUrl + "/auth/login", {
+      method: "post",
+      body: JSON.stringify({
+        login,
+        pass,
+        hToken,
+      }),
+    });
+
+    let json = await result.json();
+
+    return json;
+  },
+
+  //получение базовой информации
+  getUserInfo: async function (auth) {
+    const { id, token } = auth;
+
+    //если такого нет, возвращаем ошибку
+    if (!(id && token))
+      return {
+        success: false,
+        message: "Был получен неверный объект авторизации",
+      };
+
+    let res = await fetch(process.env.VUE_APP_API_URL + "/auth/getUserInfo", {
+      method: "post",
+      body: JSON.stringify(auth),
+    });
+
+    return res.json();
+  },
+
+  isNicknameUsing: async function (nickname) {
+    const result = await fetch(apiUrl + "/auth/isnicknameusing", {
+      method: "post",
+      body: JSON.stringify({
+        nickname,
       }),
     });
 

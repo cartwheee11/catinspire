@@ -10,12 +10,14 @@
     <div ref="header" class="container header-container">
       <div class="submit-a-cat-item">
         <h1>Это &nbsp; котоархив &nbsp; kitttify</h1>
-        <p class="subtitle">Чтобы его поплнить, заполни поле ниже</p>
+        <p class="subtitle">
+          Есть на примете мемный или эстетичный кот? Добавь его сюда!
+        </p>
         <div class="submit-inputs">
-          <input type="text" placeholder="Ссылка на кота" />
+          <!-- <input type="text" placeholder="Ссылка на кота" /> -->
           <button class="submit-button">
             <img src="https://img.icons8.com/small/32/ffffff/filled-sent.png" />
-            <span>Сенд</span>
+            <span>Добавить</span>
           </button>
         </div>
       </div>
@@ -50,9 +52,9 @@
         v-for="(cat, key) in this.$route.path == '/'
           ? loadedImages
           : [].concat(favourites).reverse()"
-        :src="cat.imageLink"
-        :key="cat.imageLink"
-        :isFavourite="favourites.indexOf(cat.imageLink) > -1"
+        :src="cat.base64"
+        :key="cat.base64"
+        :isFavourite="favourites.indexOf(cat.base64) > -1"
       />
     </div>
   </div>
@@ -81,6 +83,7 @@
 
     data() {
       return {
+        userInfo: null,
         doNotLoad: true,
         after: null,
         counter: null,
@@ -472,7 +475,7 @@
     }
 
     .submit-button span {
-      display: none;
+      /* display: none; */
     }
 
     .counter-item {

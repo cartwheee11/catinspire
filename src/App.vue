@@ -1,5 +1,6 @@
 <template>
   <div style="">
+    <simple-modal ref="modal" />
     <div class="container">
       <div class="menu" style="padding: 10px">
         <div class="left-menu-part">
@@ -8,7 +9,8 @@
           <!-- <router-link to="/about">О сайте</router-link> -->
         </div>
         <div class="right-menu-part">
-          <router-link to="/auth">Войти</router-link>
+          <router-link v-if="!user" to="/auth">Войти</router-link>
+          <span v-else>{{ user.nickname }}</span>
         </div>
       </div>
     </div>
@@ -16,6 +18,34 @@
 
   <router-view />
 </template>
+
+<script>
+  import SimpleModal from "./components/SimpleModal.vue";
+  import * as api from "./api.js";
+  export default {
+    components: { SimpleModal },
+    data() {
+      return {
+        user: null,
+      };
+    },
+
+    created() {
+      if (this.$store.state.auth) {
+        api.auth.getUserInfo(this.$store.state.auth).then((info) => {
+          console.log(info);
+
+          if (info.success === false) {
+            // this.$router.push("/auth/login");
+            this.$store.commit("logOut");
+          } else {
+            this.user = info.user;
+          }
+        });
+      }
+    },
+  };
+</script>
 
 <style scoped>
   @keyframes show {
@@ -120,10 +150,11 @@
 </style>
 
 <style>
-  /* body {
-    padding: 0;
-    margin: 0;
-  } */
+  .smart-input.invalid input {
+    /* background-color: red; */
+    outline: 3px rgb(255, 155, 155) solid;
+    outline-offset: -3px;
+  }
 
   a {
     text-decoration: none;
@@ -216,7 +247,7 @@
 
   input[type="text"],
   input[type="password"] {
-    margin-right: 10px;
+    /* margin-right: 10px; */
     border: none;
     border-radius: 10px;
     background-color: var(--c-bg);

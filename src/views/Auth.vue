@@ -2,6 +2,7 @@
   <section>
     <div class="wrapper">
       <div class="filter-wrapper">
+        <simple-modal ref="modal" />
         <div class="filter">
           <router-link to="/auth/login">Войти</router-link>
           <router-link to="/auth/register">Зарегистрироваться</router-link>
@@ -11,38 +12,76 @@
         <h2 v-if="$route.params.action == 'login'">Вход в аккаунт</h2>
         <h2 v-if="$route.params.action == 'register'">Регистрация</h2>
         <div v-if="$route.params.action == 'login'" class="inputs">
-          <input type="text" placeholder="Логин" />
-          <input type="password" placeholder="Пароль" />
-          <button>Войти</button>
-        </div>
-
-        <div v-if="$route.params.action == 'register'" class="inputs">
-          <input v-model="register.login" type="text" placeholder="Логин" />
-          <input v-model="register.pass" type="password" placeholder="Пароль" />
-          <input
-            v-model="register.nickname"
-            class="nickname"
-            type="text"
-            placeholder="Придумайте ник"
-          />
-          <input
-            class="repeat-password"
-            v-model="register.repeatPass"
+          <smart-input v-model="login.login" type="text" placeholder="Логин" />
+          <smart-input
+            v-model="login.pass"
             type="password"
-            placeholder="Повторите пароль"
+            placeholder="Пароль"
           />
           <vue-hcaptcha
             class="hcaptcha"
-            @verify="captchaVerify"
+            @verify="loginCaptchaVerify"
+            @error="allowLogin = false"
+            @expired="allowLogin = false"
             :sitekey="sitekey"
+            :key="captchaKey"
+          ></vue-hcaptcha>
+          <button
+            :disabled="!allowLogin || login.login == '' || login.pass == ''"
+          >
+            Войти
+          </button>
+        </div>
+
+        <div v-if="$route.params.action == 'register'" class="inputs">
+          <smart-input
+            v-model="register.login"
+            type="text"
+            class="register-login"
+            placeholder="Логин"
+            :validator="(value) => value.length >= 3"
+            v-model:isValid="registerValidation.login"
+          />
+          <smart-input
+            v-model="register.pass"
+            type="password"
+            class="register-pass"
+            :validator="(value) => value.length >= 6"
+            placeholder="Пароль"
+            v-model:isValid="registerValidation.pass"
+            @validationStarts="$refs.repeatPass.validate()"
+          />
+          <smart-input
+            ref="repeatPass"
+            class="repeat-password"
+            v-model="register.repeatPass"
+            type="password"
+            :validator="(value) => value === register.pass"
+            v-model:isValid="registerValidation.repeatPass"
+            placeholder="Повторите пароль"
+          />
+          <smart-input
+            :validator="registerNicknameValidator"
+            v-model="register.nickname"
+            class="nickname"
+            type="text"
+            v-model:isValid="registerValidation.nickname"
+            placeholder="Придумайте ник"
+          />
+
+          <!-- <smart-input placeholder="привет" /> -->
+          <vue-hcaptcha
+            class="hcaptcha"
+            @verify="captchaVerify"
+            @error="registerValidation.captcha = false"
+            @expired="registerValidation.captcha = false"
+            :sitekey="sitekey"
+            :key="captchaKey"
           ></vue-hcaptcha>
 
           <br />
 
-          <button
-            :disabled="!isRegisterButtonActive"
-            @click="onRegisterClick()"
-          >
+          <button :disabled="!isRegisterFormValid" @click="onRegisterClick()">
             Зарегистрироваться
           </button>
         </div>
@@ -53,16 +92,33 @@
 
 <script>
   import VueHcaptcha from "@hcaptcha/vue3-hcaptcha";
+  import SimpleModal from "../components/SimpleModal.vue";
+  import SmartInput from "../components/SmartInput.vue";
   import * as api from "../api.js";
   export default {
     components: {
       VueHcaptcha,
+      SmartInput,
+      SimpleModal,
     },
 
     data() {
       return {
-        isRegisterButtonActive: false,
+        captchaKey: 0,
+        isRegisterButtonActive: true,
+        allowLogin: false,
         sitekey: process.env.VUE_APP_HCAPTCHA_SITEKEY,
+        login: {
+          login: "",
+          pass: "",
+        },
+        registerValidation: {
+          login: false,
+          pass: false,
+          repeatPass: false,
+          nickname: false,
+          captcha: false,
+        },
         register: {
           login: "",
           pass: "",
@@ -72,7 +128,26 @@
       };
     },
 
+    computed: {
+      isRegisterFormValid() {
+        const { login, pass, repeatPass, nickname, captcha } =
+          this.registerValidation;
+
+        // const { login, pass, repeatPass, nickname } = this.registerValidation;
+        console.log(this.registerValidation);
+        return login && pass && repeatPass && nickname && captcha;
+        // return login && pass && repeatPass && nickname;
+      },
+    },
+
+    watch: {
+      registerValidation() {
+        console.log(this.registerValidation);
+      },
+    },
+
     mounted() {
+      // this.$refs.modal.show("привет", "как ");
       const act = this.$route.params.action;
       if (act !== "login" && act !== "register") {
         this.$router.push("/auth/login");
@@ -80,16 +155,40 @@
     },
 
     methods: {
+      async registerNicknameValidator() {
+        return !(await api.auth.isNicknameUsing(this.register.nickname));
+      },
+
+      loginCaptchaVerify(token) {
+        this.hToken = token;
+        this.allowLogin = true;
+      },
+
       captchaVerify(token) {
         this.isRegisterButtonActive = true;
         this.hToken = token;
+        this.registerValidation.captcha = true;
       },
 
       doRegister() {
+        this.captchaKey++; //rerender captcha
+        this.$refs.modal.show(null, "Регистрируем...");
+        this.registerValidation.captcha = false;
         const { login, pass, repeatPass, nickname } = this.register;
         if (pass === repeatPass) {
           const token = this.hToken;
-          api.auth.register(login, pass, nickname, token);
+          api.auth.register(login, pass, nickname, token).then((response) => {
+            if (!response.success) {
+              this.$refs.modal.show("Ошибка", response.message);
+            } else {
+              //регистрация прошла успешно, сохраняем токен
+              console.log(response);
+              if (response.auth) {
+                this.$store.commit("setAuth", response.auth);
+                this.$router.push("/");
+              }
+            }
+          });
         }
       },
 
@@ -101,6 +200,27 @@
 </script>
 
 <style scoped>
+  .smart-input.invalid::after {
+    content: "";
+    color: rgba(249, 83, 83, 0.739);
+    font-size: 14px;
+    font-weight: 400;
+    display: block;
+    margin-top: 3px;
+  }
+
+  .repeat-password.invalid::after {
+    content: "Пароли не совпадают";
+  }
+
+  .register-login.invalid::after {
+    content: "От 3 символов";
+  }
+
+  .register-pass.invalid::after {
+    content: "От 6 символов";
+  }
+
   #hcap-script {
     /* margin-bottom: 20px; */
     grid-column: span 2;
@@ -135,6 +255,28 @@
   .repeat-password,
   .nickname {
     grid-column: span 2;
+  }
+
+  .nickname.invalid::after {
+    content: "Никнейм уже используется";
+  }
+
+  .nickname.pending::after {
+    content: "Проверка...";
+    color: grey;
+    font-size: 14px;
+    font-weight: 400;
+    display: block;
+    margin-top: 3px;
+  }
+
+  .nickname.valid::after {
+    content: "Ник свободен, можно использовать :)";
+    color: green;
+    font-size: 14px;
+    font-weight: 400;
+    display: block;
+    margin-top: 3px;
   }
 
   .inputs button {

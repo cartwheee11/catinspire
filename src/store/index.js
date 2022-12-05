@@ -18,7 +18,8 @@ export default createStore({
     },
 
     logOut(state) {
-      state.auth = undefined;
+      state.auth = null;
+      state.user = null;
       localStorage.removeItem("auth");
     },
 

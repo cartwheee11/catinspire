@@ -11,6 +11,15 @@
       @mouseup="onMouseUp"
     />
 
+    <p style="margin-left: 10px">
+      <img
+        style="border-radius: 100%; vertical-align: middle; margin-right: 10px"
+        width="25"
+        :src="`https://ui-avatars.com/api/?background=000&color=fff&name=${author.nickname}`"
+        alt=""
+      />{{ author.nickname }}
+    </p>
+
     <div class="fav-button show" @click="switchFav">
       <svg
         v-if="isFavourite"
@@ -92,6 +101,11 @@
     props: {
       src: {
         type: String,
+        required: true,
+      },
+
+      author: {
+        type: Object,
         required: true,
       },
 

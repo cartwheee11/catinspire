@@ -6,7 +6,7 @@ let q = fauna.query;
 export default async function (req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
 
-  console.log(req.body);
+  // console.log(req.body);
 
   let { after, size } = fauna.parseJSON(req.body);
 

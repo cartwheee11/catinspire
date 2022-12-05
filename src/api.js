@@ -7,6 +7,20 @@ cats.getNumber = async function () {
   return result.json();
 };
 
+cats.submit = async function (link, auth) {
+  const url = process.env.VUE_APP_API_URL + "/cats/submit";
+  const result = await fetch(url, {
+    method: "post",
+    body: JSON.stringify({
+      link,
+      auth,
+    }),
+  });
+
+  console.log(result);
+  return result.json();
+};
+
 cats.get = async function (size, after) {
   const url = process.env.VUE_APP_API_URL + "/cats/get";
   const result = await fetch(url, {

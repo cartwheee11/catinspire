@@ -49,6 +49,7 @@
     height: 100vh;
     z-index: 100;
     display: flex;
+    text-align: center;
     align-content: center;
     align-items: center;
     flex-basis: 400px;

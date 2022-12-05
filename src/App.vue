@@ -4,13 +4,44 @@
     <div class="container">
       <div class="menu" style="padding: 10px">
         <div class="left-menu-part">
-          <router-link to="/" class="logo">котоархив</router-link>
+          <router-link style="line-height: 0.5em" to="/" class="logo"
+            >котоархив</router-link
+          >
           <!-- <router-link to="/">Главная</router-link> -->
           <!-- <router-link to="/about">О сайте</router-link> -->
         </div>
         <div class="right-menu-part">
           <router-link v-if="!$store.state.user" to="/auth">Войти</router-link>
-          <span v-else>{{ $store.state.user.username }}</span>
+          <div v-else>
+            <a
+              @click="
+                $refs.modal.show(
+                  'Терпение *^-^*',
+                  'Скоро появится возможность заходить в свой профиль, а также менять ник и аватарку'
+                )
+              "
+              style="padding-left: 9px"
+              href="#"
+              ><img
+                style="
+                  border-radius: 100%;
+                  vertical-align: middle;
+                  margin-right: 5px;
+                "
+                width="24"
+                :src="`https://ui-avatars.com/api/?background=000&color=fff&name=${$store.state.user.username}`"
+                alt=""
+              />
+              {{ $store.state.user.username }}</a
+            >
+            <a @click="$store.commit('logOut')" style="cursor: pointer">
+              <img
+                style="padding: 0 !important; display: block"
+                width="20"
+                src="https://img.icons8.com/fluency-systems-filled/48/000000/logout-rounded-up.png"
+              />
+            </a>
+          </div>
         </div>
       </div>
     </div>
@@ -71,9 +102,10 @@
   .menu {
     text-align: center;
     margin-top: 20px;
-    /* margin-bottom: 20px; */
+    margin-bottom: 20px;
     height: 80px;
-    display: inline-block;
+    display: flex;
+    align-items: center;
     vertical-align: middle;
   }
   .menu a {
@@ -106,6 +138,7 @@
   }
 
   .right-menu-part {
+    vertical-align: middle;
     position: absolute;
     right: 10px;
     opacity: 0;
@@ -113,6 +146,10 @@
     animation-name: show;
     animation-duration: 1s;
     animation-delay: 0.1s;
+  }
+
+  .right-menu-part a {
+    vertical-align: middle;
   }
 
   .menu a.router-link-active {

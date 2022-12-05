@@ -11,8 +11,11 @@ export default async function (req, res) {
 
   req.body = JSON.parse(req.body);
 
-  const { id, token } = req.body;
+  const imageLink = req.body.link;
 
+  const { id, token } = req.body.auth;
+
+  //авторизация
   db.query(q.Get(q.Ref(q.Collection("users"), id)))
     .then((user) => {
       if (user.data.token == token) {
@@ -26,15 +29,36 @@ export default async function (req, res) {
 
           return;
         } else {
-          res.json({
-            success: true,
-            user: {
-              avatar: user.data.avatar,
-              username: user.data.username,
-              cats: user.data.cats,
-              favourites: user.data.favorites,
-            },
-          });
+          //1) мы должны создать запись в таблице submissions
+          //2) мы должны реф этого сбмишна в пользователя, который его отправил
+          db.query(
+            q.Create(q.Collection("submissions"), {
+              data: {
+                imageLink,
+                date: Date.now(),
+                author: user.ref,
+              },
+            })
+          )
+            .catch((err) => {
+              console.log(err);
+            })
+            .then((ans) => {
+              const ref = ans.ref;
+
+              db.query(
+                q.Update(user.ref, {
+                  data: {
+                    submissions: user.data.submissions.concat([ref]),
+                  },
+                })
+              ).then((ans) => {
+                console.log(ans);
+                res.json({
+                  success: true,
+                });
+              });
+            });
         }
         //sending user
       } else {

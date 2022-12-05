@@ -7,17 +7,22 @@
       /* padding-bottom: 50px; */
     "
   >
+    <simple-modal ref="modal" />
     <div ref="header" class="container header-container">
       <div class="submit-a-cat-item">
-        <h1>Это &nbsp; котоархив &nbsp; kitttify</h1>
+        <h1>
+          Это <br />
+          котоархив <br />
+          kitttify
+        </h1>
         <p class="subtitle">
           Есть на примете мемный или эстетичный кот? Добавь его сюда!
         </p>
         <div class="submit-inputs">
-          <!-- <input type="text" placeholder="Ссылка на кота" /> -->
-          <button class="submit-button">
+          <smart-input v-model="submitInput" placeholder="Ссылка на кота" />
+          <button @click="onSubmitButtonClick" class="submit-button">
             <img src="https://img.icons8.com/small/32/ffffff/filled-sent.png" />
-            <span>Добавить</span>
+            <!-- <span>Послать</span> -->
           </button>
         </div>
       </div>
@@ -53,6 +58,7 @@
           ? loadedImages
           : [].concat(favourites).reverse()"
         :src="cat.base64"
+        :author="cat.author"
         :key="cat.base64"
         :isFavourite="favourites.indexOf(cat.base64) > -1"
       />
@@ -72,17 +78,21 @@
   const Masonry = require("masonry-layout");
 
   import ImagePreview from "@/components/ImagePreview.vue";
-
+  import SmartInput from "../components/SmartInput.vue";
+  import SimpleModal from "../components/SimpleModal.vue";
   import * as api from "../api.js";
 
   export default {
     name: "Home",
     components: {
       ImagePreview,
+      SimpleModal,
+      SmartInput,
     },
 
     data() {
       return {
+        submitInput: "",
         userInfo: null,
         doNotLoad: true,
         after: null,
@@ -116,10 +126,12 @@
       });
     },
 
+    beforeUnmount() {
+      document.removeEventListener(scroll, this.onScrolledDownHandler);
+    },
+
     watch: {
-      doNotLoad() {
-        console.log(this.doNotLoad);
-      },
+      doNotLoad() {},
 
       favourites() {
         if (!this.favourites.length) {
@@ -133,14 +145,47 @@
         }
       },
 
-      $route() {
-        this.$nextTick(() => {
-          this.onImageLoad();
-        });
-      },
+      // $route() {
+      //   this.$nextTick(() => {
+      //     this.onImageLoad();
+      //   });
+      // },
     },
 
     methods: {
+      onSubmitButtonClick() {
+        //если нет auth то ошибка + return
+        if (!this.$store.state.auth) {
+          this.$refs.modal.show(
+            "Воу-воу",
+            "Сперва зарегистрируйтеь или войдите!"
+          );
+
+          return;
+        }
+
+        if (this.submitInput == "" || !this.submitInput.includes(".")) {
+          this.$refs.modal.show("", "Введите ссылку на изображение корректно");
+
+          return;
+        }
+
+        // предложить компонент формы отправки кота + отправка на модерацию
+        // в общем что я решил: сперва ввести функционал со ссылкой, а потом мейби сделать уже с загрузкой картинки
+        this.$refs.modal.show("Отправка", "Подождите немного");
+        api.cats
+          .submit(this.submitInput, this.$store.state.auth)
+          .then((result) => {
+            console.log(result);
+            if (result.success) {
+              this.$refs.modal.show("Успех :]", "Отправлено на модерацию");
+              this.submitInput = "";
+            } else {
+              this.$refs.modal.show("Ошибка", result.message);
+            }
+          });
+      },
+
       switchFav(key) {
         let i = this.favourites.indexOf(key);
         if (i != -1) {
@@ -159,10 +204,12 @@
 
       onImageMouseUp() {},
 
-      onImageClick(name) {
+      async onImageClick(cat) {
+        console.log(cat);
         navigator.clipboard.writeText(
-          "https://cats.cartwheel.top/cats/" + name
+          process.env.VUE_APP_API_URL + "/cats/" + cat.id
         );
+
         this.imageClickStatus = true;
       },
 
@@ -171,11 +218,9 @@
         let scroll = window.scrollY + window.innerHeight;
         if (scroll >= docHeight) {
           if (!this.doNotLoad && this.after !== undefined) {
-            console.log("прошло");
             this.doNotLoad = true;
             console.log(this.loadedImages.length);
             this.loadChunk().then(() => {
-              console.log(this.loadedImages.length);
               this.doNotLoad = false;
             });
           }
@@ -198,9 +243,12 @@
         return new Promise((ret) => {
           api.cats.get(this.imagesInChunk, this.after).then((page) => {
             this.after = page.after;
-            // console.log(page.data);
             this.loadedImages = this.loadedImages.concat(
-              page.data.map((elem) => elem.data)
+              page.data.map((elem) => {
+                const data = elem.data;
+                data.id = JSON.parse(JSON.stringify(elem)).ref["@ref"].id;
+                return data;
+              })
             );
             ret();
           });
@@ -280,8 +328,8 @@
     border-radius: 25px;
     /* padding: 30px; */
     /* padding-right: 30px; */
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
+    /* border-top-right-radius: 0; */
+    /* border-bottom-right-radius: 0; */
     min-width: 0px;
   }
 
@@ -322,12 +370,14 @@
 
   .submit-inputs {
     display: flex;
-    max-width: 500px;
+    gap: 10px;
+    max-width: 300px;
   }
 
   .submit-inputs input {
     flex-grow: 1;
     min-width: 0px;
+    max-width: 300px;
   }
 
   .counter-item {
@@ -455,9 +505,9 @@
       width: 50%;
     }
 
-    .feed-wrapper {
-      /* max-width: 1000px; */
-    }
+    /* .feed-wrapper { */
+    /* max-width: 1000px; */
+    /* } */
   }
 
   @media screen and (max-width: 760px) {
@@ -472,10 +522,21 @@
     .header-container {
       gap: 0;
       row-gap: 20px;
+      background: none;
+      padding: 0;
+    }
+
+    .submit-a-cat-item {
+      padding: 30px;
     }
 
     .submit-button span {
-      /* display: none; */
+      display: none;
+    }
+    .submit-inputs {
+      display: flex;
+      gap: 10px;
+      max-width: 999999px;
     }
 
     .counter-item {

@@ -32,7 +32,7 @@ export default async function (req, res) {
 
   formBody = formBody.join("&");
 
-  console.log(formBody);
+  // console.log(formBody);
 
   let hRes = await fetch("https://hcaptcha.com/siteverify", {
     method: "post",
@@ -45,7 +45,7 @@ export default async function (req, res) {
 
   hRes = await hRes.json();
 
-  console.log(hRes);
+  // console.log(hRes);
 
   if (hRes.success) {
     //проверить, нет ли совпадений по никам
@@ -91,7 +91,7 @@ export default async function (req, res) {
       })
     )
       .then((result) => {
-        console.log(JSON.parse(JSON.stringify(result["ref"])));
+        // console.log(JSON.parse(JSON.stringify(result["ref"])));
         result = JSON.parse(JSON.stringify(result));
         res.json({
           success: true,

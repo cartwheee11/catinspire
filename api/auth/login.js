@@ -47,7 +47,7 @@ export default async function (req, res) {
 
   hRes = await hRes.json();
 
-  console.log(hRes);
+  // console.log(hRes);
 
   if (hRes.success) {
     //ищем в базе данных по токену

@@ -9,8 +9,8 @@ const routes = [
     component: Home,
   },
   {
-    path: "/favorites",
-    name: "Favorites",
+    path: "/favourites",
+    name: "Favourites",
     component: Home,
   },
   {

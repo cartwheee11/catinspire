@@ -157,10 +157,9 @@
           .login(this.login.username, this.login.pass, this.hToken)
           .then((res) => {
             if (res.success) {
-              console.log(res);
-              this.$refs.modal.show(null, "успешно");
               this.$store.commit("setAuth", res.auth);
               this.$store.dispatch("updateUserInfo");
+              this.$router.push("/");
             } else {
               this.$refs.modal.show("ошибка", res.message);
             }

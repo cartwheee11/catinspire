@@ -26,13 +26,15 @@ export default async function (req, res) {
 
           return;
         } else {
+          //if success
+          console.log(user.data);
           res.json({
             success: true,
             user: {
               avatar: user.data.avatar,
               username: user.data.username,
               cats: user.data.cats,
-              favourites: user.data.favorites,
+              favourites: user.data.favourites,
             },
           });
         }

@@ -42,8 +42,12 @@
     <div class="filter">
       <router-link to="/">Все коты</router-link>
       <router-link
-        :style="favourites.length ? 'opacity: 1' : 'opacity: 0.5; border: none'"
-        :to="favourites.length ? '/favorites' : '/'"
+        :style="
+          $store.state.user?.favourites?.length
+            ? 'opacity: 1'
+            : 'opacity: 0.5; border: none'
+        "
+        :to="$store.state.user?.favourites?.length ? '/favourites' : '/'"
         >Только избранные</router-link
       >
     </div>
@@ -53,20 +57,18 @@
         @onImageLoad="onImageLoad()"
         @mouse-up="onImageMouseUp(key)"
         @mouse-down="onImageClick(cat, key)"
-        @switchFav="switchFav(cat.imageLink)"
-        v-for="(cat, key) in this.$route.path == '/'
-          ? loadedImages
-          : [].concat(favourites).reverse()"
+        @switchFav="switchFav(cat)"
+        v-for="(cat, key) in loadedImages"
         :src="cat.base64"
         :author="cat.author"
         :key="cat.base64"
-        :isFavourite="favourites.indexOf(cat.base64) > -1"
+        :isFavourite="$store.state.user?.favourites?.indexOf(cat.id) > -1"
       />
     </div>
   </div>
 
   <div
-    :style="this.$route.path == '/favorites' ? 'opacity: 0' : 'opacity: 1'"
+    :style="this.$route.path == '/favourites' ? 'opacity: 1' : 'opacity: 1'"
     class="footer container"
   >
     <p v-if="after === undefined">Коты закончились!</p>
@@ -93,16 +95,14 @@
     data() {
       return {
         submitInput: "",
-        userInfo: null,
         doNotLoad: true,
         after: null,
         counter: null,
         masonry: null,
         imagesInChunk: 40,
         loadedImages: [],
-        fileList: [],
         imageClickStatus: "",
-        favourites: [],
+        // favourites: [],
       };
     },
 
@@ -119,11 +119,8 @@
         this.counter = counter;
       });
 
-      this.favourites =
-        JSON.parse(window.localStorage.getItem("favorites")) || [];
-      fetch("cats/fileList.json").then(async (response) => {
-        this.fileList = await response.json();
-      });
+      // this.favourites =
+      //   JSON.parse(window.localStorage.getItem("favorites")) || [];
     },
 
     beforeUnmount() {
@@ -133,23 +130,30 @@
     watch: {
       doNotLoad() {},
 
-      favourites() {
-        if (!this.favourites.length) {
-          this.$router.push({ name: "Home" });
-        }
+      // favourites() {
+      //   if (!this.favourites.length) {
+      //     this.$router.push({ name: "Home" });
+      //   }
 
-        if (this.$route.path == "/favorites") {
-          this.$nextTick(() => {
-            this.onImageLoad();
-          });
-        }
-      },
-
-      // $route() {
-      //   this.$nextTick(() => {
-      //     this.onImageLoad();
-      //   });
+      //   if (this.$route.path == "/favorites") {
+      //     this.$nextTick(() => {
+      //       this.onImageLoad();
+      //     });
+      //   }
       // },
+
+      $route() {
+        this.loadedImages = [];
+        this.after = null;
+        this.doNotLoad = true;
+        this.loadChunk().then(() => {
+          this.doNotLoad = false;
+        });
+
+        // this.$nextTick(() => {
+        //   this.onImageLoad();
+        // });
+      },
     },
 
     methods: {
@@ -186,20 +190,31 @@
           });
       },
 
-      switchFav(key) {
-        let i = this.favourites.indexOf(key);
-        if (i != -1) {
-          this.favourites = this.favourites
-            .slice(0, i)
-            .concat(this.favourites.slice(i + 1, this.favourites.length));
+      switchFav(cat) {
+        // console.log(cat);
+        console.log("код выполняется");
+        api.cats.setAsFav(this.$store.state.auth, cat.id);
+        let favs = this.$store.state.user.favourites;
+        if (favs.indexOf(cat.id) >= 0) {
+          this.$store.state.user.favourites = favs.filter(
+            (elem) => elem != cat.id
+          );
         } else {
-          this.favourites.push(key);
+          this.$store.state.user.favourites.push(cat.id);
         }
+        // let i = this.favourites.indexOf(key);
+        // if (i != -1) {
+        //   this.favourites = this.favourites
+        //     .slice(0, i)
+        //     .concat(this.favourites.slice(i + 1, this.favourites.length));
+        // } else {
+        //   this.favourites.push(key);
+        // }
 
-        window.localStorage.setItem(
-          "favorites",
-          JSON.stringify(this.favourites)
-        );
+        // window.localStorage.setItem(
+        //   "favorites",
+        //   JSON.stringify(this.favourites)
+        // );
       },
 
       onImageMouseUp() {},
@@ -241,7 +256,18 @@
 
       loadChunk() {
         return new Promise((ret) => {
-          api.cats.get(this.imagesInChunk, this.after).then((page) => {
+          let filter = null;
+
+          if (this.$route.path == "/favourites" && this.$store.state.user) {
+            filter = this.$store.state.user.favourites;
+          }
+
+          //костыль, пофиксить
+          if (this.$route.path == "/favourites" && !this.$store.state.user) {
+            this.$router.push("/");
+          }
+
+          api.cats.get(this.imagesInChunk, this.after, filter).then((page) => {
             this.after = page.after;
             this.loadedImages = this.loadedImages.concat(
               page.data.map((elem) => {

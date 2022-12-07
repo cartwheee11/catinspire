@@ -8,7 +8,7 @@ export default async function (req, res) {
 
   // console.log(req.body);
 
-  let { after, size } = fauna.parseJSON(req.body);
+  let { after, size, filter } = fauna.parseJSON(req.body);
 
   after = after ? after[0] : undefined;
 
@@ -16,15 +16,45 @@ export default async function (req, res) {
     size = 10;
   }
 
-  let response = await db.query(
-    q.Map(
-      q.Paginate(q.Reverse(q.Documents(q.Collection("cats"))), {
-        size,
-        after,
-      }),
-      q.Lambda("elem", q.Get(q.Var("elem")))
-    )
-  );
+  let response = null;
+
+  if (!filter) {
+    response = await db.query(
+      q.Map(
+        q.Paginate(q.Reverse(q.Documents(q.Collection("cats"))), {
+          size,
+          after,
+        }),
+        q.Lambda("elem", q.Get(q.Var("elem")))
+      )
+    );
+  } else {
+    response = await db.query(
+      q.Map(
+        q.Paginate(
+          q.Reverse(
+            q.Filter(
+              q.Documents(q.Collection("cats")),
+              q.Lambda(
+                "value",
+                q.IsNonEmpty(
+                  q.Intersection(
+                    [q.Select(["ref", "id"], q.Get(q.Var("value")))],
+                    filter
+                  )
+                )
+              )
+            )
+          ),
+          {
+            size,
+            after,
+          }
+        ),
+        q.Lambda("elem", q.Get(q.Var("elem")))
+      )
+    );
+  }
 
   res.json(response);
 }

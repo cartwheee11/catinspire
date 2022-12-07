@@ -21,13 +21,25 @@ cats.submit = async function (link, auth) {
   return result.json();
 };
 
-cats.get = async function (size, after) {
+cats.setAsFav = async function (auth, imageId) {
+  const url = process.env.VUE_APP_API_URL + "/cats/setasfav";
+  const result = await fetch(url, {
+    method: "post",
+    body: JSON.stringify({ auth, imageId }),
+  });
+  return result.json();
+};
+
+cats.get = async function (size, after, filter) {
   const url = process.env.VUE_APP_API_URL + "/cats/get";
   const result = await fetch(url, {
     method: "post",
-    body: JSON.stringify({ size, after }),
+    body: JSON.stringify({ size, after, filter }),
   });
-  return result.json();
+
+  const json = result.json();
+  console.log(await json);
+  return json;
 };
 
 const auth = {

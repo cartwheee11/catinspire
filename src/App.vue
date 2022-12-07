@@ -64,12 +64,9 @@
     created() {
       if (this.$store.state.auth) {
         api.auth.getUserInfo(this.$store.state.auth).then((info) => {
-          console.log(info);
-
           if (info.success === false) {
             this.$store.commit("logOut");
           } else {
-            // this.user = info.user;
             this.$store.commit("setUser", info.user);
           }
         });

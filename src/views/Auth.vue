@@ -13,11 +13,13 @@
         <h2 v-if="$route.params.action == 'register'">Регистрация</h2>
         <div v-if="$route.params.action == 'login'" class="inputs">
           <smart-input
+            class="login-username-input"
             v-model="login.username"
             type="text"
             placeholder="Имя пользователя"
           />
           <smart-input
+            class="login-pass-input"
             v-model="login.pass"
             type="password"
             placeholder="Пароль"
@@ -339,6 +341,15 @@
       transform: scale(0.8);
       transform-origin: left top;
       margin-bottom: 0px;
+    }
+  }
+
+  @media screen and (max-width: 550px) {
+    .login-pass-input,
+    .login-username-input,
+    .register-pass,
+    .repeat-password {
+      grid-column: span 2;
     }
   }
 </style>

@@ -180,6 +180,10 @@
       vertical-align: middle;
       margin-top: 7px;
     }
+
+    .menu {
+      margin: 0;
+    }
   }
 </style>
 

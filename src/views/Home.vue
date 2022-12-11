@@ -191,17 +191,29 @@
       },
 
       switchFav(cat) {
-        // console.log(cat);
-        console.log("код выполняется");
-        api.cats.setAsFav(this.$store.state.auth, cat.id);
-        let favs = this.$store.state.user.favourites;
-        if (favs.indexOf(cat.id) >= 0) {
-          this.$store.state.user.favourites = favs.filter(
-            (elem) => elem != cat.id
-          );
+        if (this.$store.state.auth) {
+          api.cats.setAsFav(this.$store.state.auth, cat.id);
+          console.log(this.$store.state.user);
+          let favs = this.$store.state.user.favourites;
+          if (favs && favs.indexOf(cat.id) >= 0) {
+            this.$store.state.user.favourites = favs.filter(
+              (elem) => elem != cat.id
+            );
+          } else {
+            if (favs) {
+              this.$store.state.user.favourites.push(cat.id);
+            } else {
+              this.$store.state.user.favourites = [];
+              this.$store.state.user.favourites.push(cat.id);
+            }
+          }
         } else {
-          this.$store.state.user.favourites.push(cat.id);
+          this.$refs.modal.show(
+            "Осторожно!",
+            "чтобы добавить котика в избранное, зарегистрируйся"
+          );
         }
+
         // let i = this.favourites.indexOf(key);
         // if (i != -1) {
         //   this.favourites = this.favourites

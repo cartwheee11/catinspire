@@ -49,7 +49,9 @@ export default async function (req, res) {
               db.query(
                 q.Update(user.ref, {
                   data: {
-                    submissions: user.data.submissions.concat([ref]),
+                    submissions: user.data.submissions
+                      ? user.data.submissions.concat([ref])
+                      : [ref],
                   },
                 })
               ).then((ans) => {

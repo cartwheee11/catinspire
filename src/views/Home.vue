@@ -40,8 +40,17 @@
 
   <div class="feed-wrapper">
     <div class="filter">
-      <router-link to="/">Все коты</router-link>
       <router-link
+        :class="{
+          'disabled-link': doNotLoad,
+        }"
+        to="/"
+        >Все коты</router-link
+      >
+      <router-link
+        :class="{
+          'disabled-link': doNotLoad,
+        }"
         :style="
           $store.state.user?.favourites?.length
             ? 'opacity: 1'
@@ -210,7 +219,7 @@
         } else {
           this.$refs.modal.show(
             "Осторожно!",
-            "чтобы добавить котика в избранное, зарегистрируйся"
+            "Чтобы добавить котика в избранное, зарегистрируйся"
           );
         }
 
@@ -297,6 +306,12 @@
 </script>
 
 <style scoped>
+  .disabled-link {
+    pointer-events: none;
+    opacity: 0.9;
+    cursor: default;
+  }
+
   @keyframes show {
     from {
       transform: translate(0, 20px);

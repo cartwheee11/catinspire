@@ -308,11 +308,8 @@
 
   .filter {
     margin: auto;
-    /* height: 40px; */
-    /* padding: 7px 20px; */
     overflow: hidden;
     border: 10 white solid;
-    /* box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.108); */
     border-radius: 10px;
     display: inline-block;
     margin-bottom: 10px;
@@ -320,8 +317,6 @@
   }
 
   .filter a {
-    /* margin-right: 20px; */
-    /* margin: 0 10px; */
     display: inline-block;
     padding: 12px 20px;
     transition: 0.2s;

@@ -11,9 +11,7 @@
     <div ref="header" class="container header-container">
       <div class="submit-a-cat-item">
         <h1>
-          Это <br />
-          котоархив <br />
-          kitttify
+          Лучшие котики интернета
         </h1>
         <p class="subtitle">
           Есть на примете мемный или эстетичный кот? Добавь его сюда!

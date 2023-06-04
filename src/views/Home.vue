@@ -7,6 +7,7 @@
       /* padding-bottom: 50px; */
     "
   >
+    <simple-alert ref="alert" />
     <simple-modal ref="modal" />
     <div ref="header" class="container header-container">
       <div class="submit-a-cat-item">
@@ -85,10 +86,10 @@
 
 <script>
   const Masonry = require("masonry-layout");
-
   import ImagePreview from "@/components/ImagePreview.vue";
   import SmartInput from "../components/SmartInput.vue";
   import SimpleModal from "../components/SimpleModal.vue";
+  import SimpleAlert from "../components/SimpleAlert.vue";
   import * as api from "../api.js";
 
   export default {
@@ -97,6 +98,7 @@
       ImagePreview,
       SimpleModal,
       SmartInput,
+      SimpleAlert
     },
 
     data() {
@@ -243,6 +245,8 @@
         navigator.clipboard.writeText(
           process.env.VUE_APP_API_URL + "/cats/" + cat.id
         );
+
+        this.$refs.alert.print('Картинка скопирована')
 
         this.imageClickStatus = true;
       },

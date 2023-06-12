@@ -55,6 +55,7 @@ export default async function (req, res) {
       )
     );
   }
-
+  
+  response.data.forEach(elem => delete elem.data.base64)
   res.json(response);
 }

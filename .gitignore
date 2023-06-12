@@ -2,6 +2,7 @@
 node_modules
 /dist
 .env
+src/hidden
 
 # local env files
 .env.local

@@ -67,9 +67,9 @@
         @mouse-down="onImageClick(cat, key)"
         @switchFav="switchFav(cat)"
         v-for="(cat, key) in loadedImages"
-        :src="cat.base64"
+        :src="cat.link"
         :author="cat.author"
-        :key="cat.base64"
+        :key="cat.link"
         :isFavourite="$store.state.user?.favourites?.indexOf(cat.id) > -1"
       />
     </div>
@@ -158,10 +158,6 @@
         this.loadChunk().then(() => {
           this.doNotLoad = false;
         });
-
-        // this.$nextTick(() => {
-        //   this.onImageLoad();
-        // });
       },
     },
 
@@ -242,8 +238,9 @@
 
       async onImageClick(cat) {
         console.log(cat);
+        console.log(cat.link)
         navigator.clipboard.writeText(
-          process.env.VUE_APP_API_URL + "/cats/" + cat.id
+          cat.link
         );
 
         this.$refs.alert.print('Картинка скопирована')

@@ -5,7 +5,7 @@
         <simple-modal ref="modal" />
         <div class="filter">
           <router-link to="/auth/login">Войти</router-link>
-          <router-link to="/auth/register">Зарегистрироваться</router-link>
+          <router-link to="/auth/register">Регистрация</router-link>
         </div>
       </div>
       <div class="small-container">

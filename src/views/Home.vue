@@ -56,7 +56,7 @@
             : 'opacity: 0.5; border: none'
         "
         :to="$store.state.user?.favourites?.length ? '/favourites' : '/'"
-        >Только избранные</router-link
+        >Избранное</router-link
       >
     </div>
     <div class="container feed" ref="feed">

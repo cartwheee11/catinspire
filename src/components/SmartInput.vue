@@ -86,7 +86,7 @@
     },
 
     mounted() {
-      this.input = this.modelValue;
+      // this.input = this.modelValue;
       this.validate();
     },
 
@@ -100,6 +100,10 @@
       input() {
         this.$emit("update:modelValue", this.input);
         this.state = "";
+      },
+
+      modelValue() {
+        this.input = this.modelValue
       },
 
       state() {

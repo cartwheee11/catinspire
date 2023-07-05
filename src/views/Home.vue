@@ -185,10 +185,9 @@
         api.cats
           .submit(this.submitInput, this.$store.state.auth)
           .then((result) => {
-            console.log(result);
             if (result.success) {
-              this.$refs.modal.show("Успех :]", "Отправлено на модерацию");
-              this.submitInput = "";
+              this.$refs.modal.show("Успех :з", "Отправлено на модерацию");
+              this.submitInput = ""; // не отрабатывает
             } else {
               this.$refs.modal.show("Ошибка", result.message);
             }
@@ -198,7 +197,6 @@
       switchFav(cat) {
         if (this.$store.state.auth) {
           api.cats.setAsFav(this.$store.state.auth, cat.id);
-          console.log(this.$store.state.user);
           let favs = this.$store.state.user.favourites;
           if (favs && favs.indexOf(cat.id) >= 0) {
             this.$store.state.user.favourites = favs.filter(
@@ -237,8 +235,6 @@
       onImageMouseUp() {},
 
       async onImageClick(cat) {
-        console.log(cat);
-        console.log(cat.link)
         navigator.clipboard.writeText(
           cat.link
         );
@@ -254,7 +250,6 @@
         if (scroll >= docHeight) {
           if (!this.doNotLoad && this.after !== undefined) {
             this.doNotLoad = true;
-            console.log(this.loadedImages.length);
             this.loadChunk().then(() => {
               this.doNotLoad = false;
             });

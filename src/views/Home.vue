@@ -12,7 +12,7 @@
     <div ref="header" class="container header-container">
       <div class="submit-a-cat-item">
         <h1>
-          Лучшие котики интернета
+          Чилловый фонд <br>котиков
         </h1>
         <p class="subtitle">
           Есть на примете мемный или эстетичный кот? Добавь его сюда!

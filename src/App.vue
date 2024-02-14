@@ -5,7 +5,7 @@
       <div class="menu" style="padding: 10px">
         <div class="left-menu-part">
           <router-link style="line-height: 0.5em" to="/" class="logo"
-            >котоархив</router-link
+            >котикс</router-link
           >
           <!-- <router-link to="/">Главная</router-link> -->
           <!-- <router-link to="/about">О сайте</router-link> -->

@@ -1,5 +1,6 @@
 let cats = {};
 const apiUrl = process.env.VUE_APP_API_URL;
+console.log(apiUrl);
 
 cats.getNumber = async function () {
   const url = process.env.VUE_APP_API_URL + "/cats/getNumber";
@@ -44,6 +45,7 @@ cats.get = async function (size, after, filter) {
 
 const auth = {
   register: async function (username, pass, hToken) {
+    console.log(process.env.VUE_APP_API_URL);
     const result = await fetch(apiUrl + "/auth/register", {
       method: "post",
       body: JSON.stringify({
